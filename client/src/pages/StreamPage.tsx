@@ -8,6 +8,7 @@ import { trpc } from "@/lib/trpc";
 import { Link, useParams } from "wouter";
 import VideoPlayer from '@/components/VideoPlayer';
 import Chat from '@/components/Chat';
+import GoalWidget from '@/components/GoalWidget';
 import { Eye, Send, AlertCircle } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
@@ -137,24 +138,22 @@ export default function StreamPage() {
         <div className="grid lg:grid-cols-[1fr_400px] gap-6">
           {/* Video Player */}
           <div className="space-y-4">
-            {stream.isLive ? (
+            {/* Video Player with Goal Widget Overlay */}
+            <div className="relative">
               <VideoPlayer
                 src={stream.hlsUrl || 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8'}
                 poster={stream.thumbnailUrl || undefined}
-                autoPlay
+                autoPlay={stream.isLive}
                 className="rainbow-border"
               />
-            ) : (
-              <Card className="rainbow-border overflow-hidden">
-                <div className="relative aspect-video bg-muted flex items-center justify-center">
-                  <div className="text-center">
-                    <AlertCircle className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-                    <p className="text-xl font-bold mb-2">Stream Offline</p>
-                    <p className="text-muted-foreground">This stream is not currently live</p>
-                  </div>
-                </div>
-              </Card>
-            )}
+              
+              {/* Sticky Goal Widget */}
+              <div className="absolute top-4 right-4 w-80 z-10">
+                <GoalWidget streamerId={stream.streamerId} />
+              </div>
+            </div>
+
+            {/* Stream Info Card removed - already shown in VideoPlayer section */}
 
             {/* Stream Info */}
             <div>

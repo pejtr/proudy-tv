@@ -3,7 +3,13 @@ import { useAuth } from '@/_core/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Send, AlertCircle } from 'lucide-react';
+import { Send, AlertCircle, Smile } from 'lucide-react';
+import EmojiPicker, { EmojiClickData } from 'emoji-picker-react';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 import { io, Socket } from 'socket.io-client';
 
 interface ChatMessage {
@@ -15,6 +21,48 @@ interface ChatMessage {
   moderated?: boolean;
 }
 
+// Parse @mentions in message
+function parseMentions(message: string, currentUsername?: string) {
+  const mentionRegex = /@(\w+)/g;
+  const parts = [];
+  let lastIndex = 0;
+  let match;
+  let isMentioned = false;
+
+  while ((match = mentionRegex.exec(message)) !== null) {
+    // Add text before mention
+    if (match.index > lastIndex) {
+      parts.push({
+        type: 'text',
+        content: message.substring(lastIndex, match.index),
+      });
+    }
+
+    // Add mention
+    const mentionedUser = match[1];
+    const isCurrentUser = currentUsername && mentionedUser.toLowerCase() === currentUsername.toLowerCase();
+    if (isCurrentUser) isMentioned = true;
+
+    parts.push({
+      type: 'mention',
+      content: `@${mentionedUser}`,
+      isCurrentUser,
+    });
+
+    lastIndex = match.index + match[0].length;
+  }
+
+  // Add remaining text
+  if (lastIndex < message.length) {
+    parts.push({
+      type: 'text',
+      content: message.substring(lastIndex),
+    });
+  }
+
+  return { parts, isMentioned };
+}
+
 interface ChatProps {
   streamId: number;
   className?: string;
@@ -24,6 +72,7 @@ export default function Chat({ streamId, className = '' }: ChatProps) {
   const { user, isAuthenticated } = useAuth();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputMessage, setInputMessage] = useState('');
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
@@ -43,7 +92,7 @@ export default function Chat({ streamId, className = '' }: ChatProps) {
   useEffect(() => {
     // Connect to Socket.io server
     const socket = io({
-      path: '/api/socket.io',
+      path: '/socket.io/',
       transports: ['websocket', 'polling'], // Fallback to polling if WebSocket fails
       reconnection: true,
       reconnectionDelay: 1000,
@@ -58,7 +107,7 @@ export default function Chat({ streamId, className = '' }: ChatProps) {
       setError(null);
       
       // Join stream room
-      socket.emit('join-stream', { streamId });
+      socket.emit('join_stream', streamId);
     });
 
     socket.on('disconnect', () => {
@@ -71,18 +120,20 @@ export default function Chat({ streamId, className = '' }: ChatProps) {
       setError('Failed to connect to chat. Retrying...');
     });
 
+    // Receive chat history
+    socket.on('chat_history', (history: ChatMessage[]) => {
+      setMessages(history);
+    });
+
     // Receive new messages
-    socket.on('chat-message', (message: ChatMessage) => {
+    socket.on('new_message', (message: ChatMessage) => {
       setMessages(prev => [...prev, message]);
     });
 
-    // Receive message moderation result
-    socket.on('message-moderated', ({ messageId, reason }: { messageId: string; reason: string }) => {
-      setMessages(prev => prev.map(msg => 
-        msg.id === messageId 
-          ? { ...msg, moderated: true, message: `[Message removed: ${reason}]` }
-          : msg
-      ));
+    // Receive message blocked notification
+    socket.on('message_blocked', ({ reason, message }: { reason: string; message: string }) => {
+      setError(message);
+      setTimeout(() => setError(null), 3000);
     });
 
     return () => {
@@ -99,7 +150,12 @@ export default function Chat({ streamId, className = '' }: ChatProps) {
       message: inputMessage.trim(),
     };
 
-    socketRef.current.emit('send-message', { streamId, ...message });
+    socketRef.current.emit('send_message', {
+      streamId,
+      userId: user!.id,
+      username: user!.name || 'Anonymous',
+      message: inputMessage.trim(),
+    });
     setInputMessage('');
   };
 
@@ -138,9 +194,16 @@ export default function Chat({ streamId, className = '' }: ChatProps) {
       {/* Messages Area */}
       <ScrollArea className="flex-1 p-4">
         <div className="space-y-3">
+          {/* Welcome Message */}
+          <div className="bg-primary/10 border border-primary/20 rounded-lg p-3 mb-4">
+            <p className="text-sm text-center">
+              👋 <span className="font-semibold">Vítáme vás v chatu!</span> Chovejte se přátelsky a respektujte ostatní. 💬
+            </p>
+          </div>
+
           {messages.length === 0 ? (
             <div className="text-center text-muted-foreground py-8">
-              <p>No messages yet. Be the first to chat!</p>
+              <p>Zatím žádné zprávy. Buďte první kdo napíše!</p>
             </div>
           ) : (
             messages.map((msg) => (
@@ -154,7 +217,29 @@ export default function Chat({ streamId, className = '' }: ChatProps) {
                   <span className={`text-sm break-words flex-1 ${
                     msg.moderated ? 'text-muted-foreground italic' : 'text-foreground'
                   }`}>
-                    {msg.message}
+                    {(() => {
+                      const { parts, isMentioned } = parseMentions(msg.message, user?.name || undefined);
+                      return (
+                        <span className={isMentioned ? 'bg-primary/20 px-1 rounded' : ''}>
+                          {parts.map((part, idx) => (
+                            part.type === 'mention' ? (
+                              <span
+                                key={idx}
+                                className={`font-bold ${
+                                  part.isCurrentUser
+                                    ? 'text-primary bg-primary/10 px-1 rounded'
+                                    : 'text-blue-500'
+                                }`}
+                              >
+                                {part.content}
+                              </span>
+                            ) : (
+                              <span key={idx}>{part.content}</span>
+                            )
+                          ))}
+                        </span>
+                      );
+                    })()}
                   </span>
                 </div>
                 {/* Timestamp */}
@@ -181,6 +266,30 @@ export default function Chat({ streamId, className = '' }: ChatProps) {
               className="flex-1"
               maxLength={500}
             />
+            
+            {/* Emoji Picker */}
+            <Popover open={showEmojiPicker} onOpenChange={setShowEmojiPicker}>
+              <PopoverTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  size="icon"
+                  type="button"
+                >
+                  <Smile className="h-4 w-4" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-full p-0 border-0" align="end">
+                <EmojiPicker
+                  onEmojiClick={(emojiData: EmojiClickData) => {
+                    setInputMessage(prev => prev + emojiData.emoji);
+                    setShowEmojiPicker(false);
+                  }}
+                  width={350}
+                  height={400}
+                />
+              </PopoverContent>
+            </Popover>
+            
             <Button
               onClick={sendMessage}
               disabled={!inputMessage.trim() || !isConnected}

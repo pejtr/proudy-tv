@@ -649,6 +649,57 @@ export const appRouter = router({
         return await db.isGroupMember(input.groupId, ctx.user.id);
       }),
   }),
+
+  // Stream Goals & Challenges
+  goals: router({
+    // Create goal
+    create: protectedProcedure
+      .input(z.object({
+        type: z.enum(["sub_goal", "donation_goal"]),
+        title: z.string().min(1).max(255),
+        description: z.string().optional(),
+        targetValue: z.number().min(1),
+        widgetColor: z.string().optional(),
+        widgetPosition: z.enum(["top_left", "top_right", "bottom_left", "bottom_right"]).optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const goalId = await db.createGoal(ctx.user.id, input);
+        return { goalId, success: true };
+      }),
+
+    // Update goal progress
+    updateProgress: protectedProcedure
+      .input(z.object({
+        goalId: z.number(),
+        currentValue: z.number(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        await db.updateGoalProgress(input.goalId, input.currentValue);
+        return { success: true };
+      }),
+
+    // Get active goal for streamer
+    getActive: publicProcedure
+      .input(z.object({ streamerId: z.number() }))
+      .query(async ({ input }) => {
+        return await db.getActiveGoal(input.streamerId);
+      }),
+
+    // Complete goal
+    complete: protectedProcedure
+      .input(z.object({ goalId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        await db.completeGoal(input.goalId);
+        return { success: true };
+      }),
+
+    // Get goal history
+    getHistory: publicProcedure
+      .input(z.object({ streamerId: z.number(), limit: z.number().default(10) }))
+      .query(async ({ input }) => {
+        return await db.getGoalHistory(input.streamerId, input.limit);
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;

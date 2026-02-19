@@ -979,3 +979,133 @@ export async function isGroupMember(groupId: number, userId: number) {
   
   return result.length > 0;
 }
+
+
+/**
+ * Stream Goals & Challenges Functions
+ */
+export async function createGoal(streamerId: number, input: {
+  type: "sub_goal" | "donation_goal";
+  title: string;
+  description?: string;
+  targetValue: number;
+  widgetColor?: string;
+  widgetPosition?: "top_left" | "top_right" | "bottom_left" | "bottom_right";
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const { streamGoals } = await import("../drizzle/schema");
+  
+  const [result] = await db.insert(streamGoals).values({
+    streamerId,
+    type: input.type,
+    title: input.title,
+    description: input.description,
+    targetValue: input.targetValue,
+    currentValue: 0,
+    widgetColor: input.widgetColor || "#8b5cf6",
+    widgetPosition: input.widgetPosition || "top_right",
+    isActive: true,
+    isCompleted: false,
+  });
+  return result.insertId;
+}
+
+export async function updateGoalProgress(goalId: number, currentValue: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const { streamGoals, goalMilestones } = await import("../drizzle/schema");
+  
+  // Get goal to check if milestone reached
+  const [goal] = await db
+    .select()
+    .from(streamGoals)
+    .where(eq(streamGoals.id, goalId));
+  
+  if (!goal) throw new Error("Goal not found");
+  
+  // Update progress
+  await db
+    .update(streamGoals)
+    .set({ currentValue, updatedAt: new Date() })
+    .where(eq(streamGoals.id, goalId));
+  
+  // Check if goal completed
+  if (currentValue >= goal.targetValue && !goal.isCompleted) {
+    await db
+      .update(streamGoals)
+      .set({ isCompleted: true, completedAt: new Date() })
+      .where(eq(streamGoals.id, goalId));
+    
+    // Record milestone
+    await db.insert(goalMilestones).values({
+      goalId,
+      milestoneValue: goal.targetValue,
+      reachedAt: new Date(),
+      celebrationShown: false,
+    });
+  }
+  
+  return true;
+}
+
+export async function getActiveGoal(streamerId: number) {
+  const db = await getDb();
+  if (!db) return null;
+  
+  const { streamGoals } = await import("../drizzle/schema");
+  
+  const [goal] = await db
+    .select()
+    .from(streamGoals)
+    .where(
+      and(
+        eq(streamGoals.streamerId, streamerId),
+        eq(streamGoals.isActive, true),
+        eq(streamGoals.isCompleted, false)
+      )
+    )
+    .orderBy(desc(streamGoals.createdAt))
+    .limit(1);
+  
+  return goal || null;
+}
+
+export async function completeGoal(goalId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const { streamGoals } = await import("../drizzle/schema");
+  
+  await db
+    .update(streamGoals)
+    .set({ 
+      isCompleted: true, 
+      isActive: false,
+      completedAt: new Date() 
+    })
+    .where(eq(streamGoals.id, goalId));
+  
+  return true;
+}
+
+export async function getGoalHistory(streamerId: number, limit: number = 10) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const { streamGoals } = await import("../drizzle/schema");
+  
+  return await db
+    .select()
+    .from(streamGoals)
+    .where(
+      and(
+        eq(streamGoals.streamerId, streamerId),
+        eq(streamGoals.isCompleted, true)
+      )
+    )
+    .orderBy(desc(streamGoals.completedAt))
+    .limit(limit);
+}

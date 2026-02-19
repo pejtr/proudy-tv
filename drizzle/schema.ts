@@ -580,3 +580,49 @@ export const customEmotes = mysqlTable("custom_emotes", {
 }));
 
 export type InsertCustomEmote = typeof customEmotes.$inferInsert;
+
+
+/**
+ * Stream Goals & Challenges - Sub goals and donation goals with progress tracking
+ */
+export const streamGoals = mysqlTable("stream_goals", {
+  id: int("id").autoincrement().primaryKey(),
+  streamerId: int("streamer_id").notNull(),
+  type: mysqlEnum("type", ["sub_goal", "donation_goal"]).notNull(),
+  title: varchar("title", { length: 255 }).notNull(), // e.g., "Road to 100 Subs!"
+  description: text("description"), // Challenge description - what streamer will do
+  targetValue: int("target_value").notNull(), // Target number (subs or coins)
+  currentValue: int("current_value").default(0).notNull(), // Current progress
+  isActive: boolean("is_active").default(true).notNull(),
+  isCompleted: boolean("is_completed").default(false).notNull(),
+  completedAt: timestamp("completed_at"),
+  // Widget customization
+  widgetColor: varchar("widget_color", { length: 7 }).default("#8b5cf6"), // Hex color
+  widgetPosition: mysqlEnum("widget_position", ["top_left", "top_right", "bottom_left", "bottom_right"]).default("top_right"),
+  showOnStream: boolean("show_on_stream").default(true).notNull(), // Sticky widget visibility
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  streamerIdx: index("streamer_idx").on(table.streamerId),
+  activeIdx: index("active_idx").on(table.isActive),
+  typeIdx: index("type_idx").on(table.type),
+}));
+
+export type InsertStreamGoal = typeof streamGoals.$inferInsert;
+export type SelectStreamGoal = typeof streamGoals.$inferSelect;
+
+/**
+ * Goal Milestones - Track progress updates and celebrations
+ */
+export const goalMilestones = mysqlTable("goal_milestones", {
+  id: int("id").autoincrement().primaryKey(),
+  goalId: int("goal_id").notNull(),
+  milestoneValue: int("milestone_value").notNull(), // e.g., 25, 50, 75, 100
+  reachedAt: timestamp("reached_at").defaultNow().notNull(),
+  celebrationShown: boolean("celebration_shown").default(false).notNull(),
+}, (table) => ({
+  goalIdx: index("goal_idx").on(table.goalId),
+}));
+
+export type InsertGoalMilestone = typeof goalMilestones.$inferInsert;
+export type SelectGoalMilestone = typeof goalMilestones.$inferSelect;

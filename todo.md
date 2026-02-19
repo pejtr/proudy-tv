@@ -238,6 +238,10 @@
 - [x] Add community tRPC routers
 - [x] Add community database functions
 - [x] Add /community route to App.tsx
+- [x] Add AI Powered badge to homepage hero section
+- [x] Fix VideoPlayer to support direct MP4 loop playback
+- [x] Fix fullscreen with cross-browser support
+- [x] Fix Socket.io chat connection and event names
 
 
 ## Monetization System (New User Request)
@@ -307,3 +311,37 @@
 - [ ] Build top clips/trending page
 - [ ] Add clip embed support
 - [ ] Implement clip moderation tools
+
+
+## Stream Goals & Challenges (New User Request)
+- [ ] Create stream_goals table (streamId, type: sub/donation, targetValue, currentValue, challenge, isActive)
+- [ ] Add goal_milestones table for tracking progress updates
+- [ ] Create tRPC router for goal management (create, update, getActive, complete)
+- [ ] Build sticky goal widget overlay component
+- [ ] Add real-time progress updates via Socket.io
+- [ ] Create streamer dashboard for goal configuration
+- [ ] Add celebration animation when goal is reached
+- [ ] Implement goal history/archive page
+- [ ] Add customizable widget design (colors, position)
+
+
+## Chat @Mentions System (New User Request)
+- [ ] Add mention parsing to chat messages (detect @username)
+- [ ] Add visual highlight for mentioned users
+- [ ] Implement notification sound when user is mentioned
+- [ ] Add mention counter badge
+- [ ] Create autocomplete dropdown for @mentions
+- [ ] Store mentions in database for notification tracking
+- [ ] Add "jump to mention" functionality
+
+
+## TTS Highlighted Messages (New User Request)
+- [ ] Add highlighted_messages table to database
+- [ ] Add payment integration for highlights (50+ coins)
+- [ ] Implement TTS queue system
+- [ ] Add Czech voice selection for streamers (multiple voices)
+- [ ] Create TTS playback with Web Speech API or Google TTS
+- [ ] Add visual highlight styling in chat
+- [ ] Implement volume control for TTS
+- [ ] Add highlight duration settings
+- [ ] Create streamer dashboard for TTS settings

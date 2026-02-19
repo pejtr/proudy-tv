@@ -171,31 +171,42 @@ export default function VideoPlayer({
     setIsMuted(newVolume === 0);
   };
 
-  const toggleFullscreen = () => {
+  const toggleFullscreen = async () => {
     const container = containerRef.current;
-    if (!container) return;
+    if (!container) {
+      console.error('[VideoPlayer] Container ref is null');
+      return;
+    }
 
-    if (!document.fullscreenElement) {
-      // Try different fullscreen APIs for cross-browser support
-      if (container.requestFullscreen) {
-        container.requestFullscreen();
-      } else if ((container as any).webkitRequestFullscreen) {
-        (container as any).webkitRequestFullscreen(); // Safari
-      } else if ((container as any).mozRequestFullScreen) {
-        (container as any).mozRequestFullScreen(); // Firefox
-      } else if ((container as any).msRequestFullscreen) {
-        (container as any).msRequestFullscreen(); // IE/Edge
+    try {
+      if (!document.fullscreenElement) {
+        console.log('[VideoPlayer] Entering fullscreen');
+        // Try different fullscreen APIs for cross-browser support
+        if (container.requestFullscreen) {
+          await container.requestFullscreen();
+        } else if ((container as any).webkitRequestFullscreen) {
+          await (container as any).webkitRequestFullscreen(); // Safari
+        } else if ((container as any).mozRequestFullScreen) {
+          await (container as any).mozRequestFullScreen(); // Firefox
+        } else if ((container as any).msRequestFullscreen) {
+          await (container as any).msRequestFullscreen(); // IE/Edge
+        } else {
+          console.error('[VideoPlayer] Fullscreen API not supported');
+        }
+      } else {
+        console.log('[VideoPlayer] Exiting fullscreen');
+        if (document.exitFullscreen) {
+          await document.exitFullscreen();
+        } else if ((document as any).webkitExitFullscreen) {
+          await (document as any).webkitExitFullscreen();
+        } else if ((document as any).mozCancelFullScreen) {
+          await (document as any).mozCancelFullScreen();
+        } else if ((document as any).msExitFullscreen) {
+          await (document as any).msExitFullscreen();
+        }
       }
-    } else {
-      if (document.exitFullscreen) {
-        document.exitFullscreen();
-      } else if ((document as any).webkitExitFullscreen) {
-        (document as any).webkitExitFullscreen();
-      } else if ((document as any).mozCancelFullScreen) {
-        (document as any).mozCancelFullScreen();
-      } else if ((document as any).msExitFullscreen) {
-        (document as any).msExitFullscreen();
-      }
+    } catch (error) {
+      console.error('[VideoPlayer] Fullscreen error:', error);
     }
   };
 
