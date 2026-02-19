@@ -476,3 +476,15 @@
 - [x] Add verified badge to Dashboard header
 - [x] Write vitest tests for verified badge display logic (53 tests passing)
 - [ ] Show verified badge in streamer cards on Browse page (requires backend data)
+
+
+## Backend Chat Integration & Partner Badges (Completed)
+- [x] Add emailVerified field to chat message payload on server
+- [x] Add partnerTier field to chat message payload on server
+- [x] Update socket.io chat message broadcast to include user verification status
+- [x] Add emailVerified to stream data in Browse page backend (getLiveStreams with user join)
+- [x] Create PartnerTierBadge component (🎬 Basic, ⭐ Affiliate, 👑 Partner)
+- [x] Add partner tier badge to chat messages (next to verified badge)
+- [x] Update ChatMessage interface with partnerTier field
+- [x] Add verified badge to Browse page streamer cards (with streamer name)
+- [x] Write vitest tests for chat payload and badge display (60 tests passing)

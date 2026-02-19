@@ -5,6 +5,7 @@ import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
 import { Link } from "wouter";
 import { Eye, Radio } from "lucide-react";
+import VerifiedBadge from "@/components/VerifiedBadge";
 
 export default function Browse() {
   const { user, isAuthenticated } = useAuth();
@@ -112,6 +113,10 @@ export default function Browse() {
                   </div>
 
                   <div className="p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-sm text-muted-foreground">{stream.streamerName}</span>
+                      <VerifiedBadge verified={stream.emailVerified || false} size="sm" showTooltip={false} />
+                    </div>
                     <h3 className="font-bold text-lg mb-1 truncate">{stream.title}</h3>
                     {stream.description && (
                       <p className="text-sm text-muted-foreground line-clamp-2">

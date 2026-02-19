@@ -151,7 +151,29 @@ export async function getLiveStreams() {
   const db = await getDb();
   if (!db) return [];
 
-  return db.select().from(streams).where(eq(streams.isLive, true)).orderBy(desc(streams.viewerCount));
+  // Join with users table to get emailVerified status and streamer name
+  const result = await db
+    .select({
+      id: streams.id,
+      title: streams.title,
+      description: streams.description,
+      streamerId: streams.streamerId,
+      streamerName: users.name,
+      thumbnailUrl: streams.thumbnailUrl,
+      hlsUrl: streams.hlsUrl,
+      isLive: streams.isLive,
+      viewerCount: streams.viewerCount,
+      startedAt: streams.startedAt,
+      endedAt: streams.endedAt,
+      createdAt: streams.createdAt,
+      emailVerified: users.emailVerified,
+    })
+    .from(streams)
+    .leftJoin(users, eq(streams.streamerId, users.id))
+    .where(eq(streams.isLive, true))
+    .orderBy(desc(streams.viewerCount));
+
+  return result;
 }
 
 export async function getStreamerStreams(streamerId: number) {

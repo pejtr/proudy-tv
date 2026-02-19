@@ -13,6 +13,8 @@ export interface ChatMessage {
   message: string;
   timestamp: Date;
   isModerated: boolean;
+  emailVerified?: boolean;
+  partnerTier?: 'basic' | 'affiliate' | 'partner';
 }
 
 export function setupChatServer(httpServer: HTTPServer) {
@@ -77,8 +79,11 @@ export function setupChatServer(httpServer: HTTPServer) {
           return;
         }
 
-        // Save message to database
+        // Save message to database and fetch user data
         const db = await getDb();
+        let emailVerified = false;
+        let partnerTier: 'basic' | 'affiliate' | 'partner' = 'basic';
+        
         if (db) {
           await db.insert(chatMessages).values({
             streamId: data.streamId,
@@ -87,6 +92,18 @@ export function setupChatServer(httpServer: HTTPServer) {
             message: data.message,
             isModerated: false
           });
+          
+          // Fetch user verification and partner tier
+          const { users } = await import('../drizzle/schema');
+          const [user] = await db.select({
+            emailVerified: users.emailVerified,
+            partnerTier: users.partnerTier
+          }).from(users).where(eq(users.id, data.userId)).limit(1);
+          
+          if (user) {
+            emailVerified = user.emailVerified || false;
+            partnerTier = user.partnerTier as 'basic' | 'affiliate' | 'partner' || 'basic';
+          }
         }
 
         // Broadcast message to all users in the stream room
@@ -97,7 +114,9 @@ export function setupChatServer(httpServer: HTTPServer) {
           username: data.username,
           message: data.message,
           timestamp: new Date(),
-          isModerated: false
+          isModerated: false,
+          emailVerified,
+          partnerTier
         };
 
         io.to(`stream_${data.streamId}`).emit('new_message', chatMessage);
