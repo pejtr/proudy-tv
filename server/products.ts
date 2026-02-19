@@ -73,11 +73,11 @@ export const DONATION_AMOUNTS = [
 ];
 
 /**
- * Revenue Split - 85% to streamer, 15% to platform
+ * Revenue Split - 80% to streamer, 20% to platform
  */
 export const REVENUE_SPLIT = {
-  streamer: 0.85,
-  platform: 0.15,
+  streamer: 0.80,
+  platform: 0.20,
 };
 
 /**

@@ -408,3 +408,22 @@
 - [ ] Add virtual stream creation form (name, video, personality)
 - [ ] Implement AI chat responder using LLM
 - [ ] Add looping video stream management
+
+
+## AI Emote Generator (Completed)
+- [x] Add tRPC mutation for AI emote generation (emotes.generateWithAI)
+- [x] Integrate generateImage() from server/_core/imageGeneration.ts
+- [x] Upload generated emote to S3 storage
+- [x] Save emote metadata to custom_emotes table
+- [x] Create EmoteGenerator UI component with prompt input
+- [x] Build EmoteManagement page for streamers (/dashboard/emotes)
+- [x] Add emote preview gallery
+- [x] Implement emote enable/disable toggle
+- [x] Add emote delete functionality
+- [x] Write vitest tests for emote generation flow (21 tests passing)
+
+
+## Urgent Fixes (Completed)
+- [x] Fix fullscreen button not responding in VideoPlayer (event propagation issue)
+
+- [x] Change revenue split from 85/15 to 80/20 (80% streamer, 20% platform)

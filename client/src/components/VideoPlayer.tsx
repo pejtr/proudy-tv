@@ -273,13 +273,19 @@ export default function VideoPlayer({
       )}
 
       {/* Controls Overlay */}
-      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 opacity-0 group-hover:opacity-100 transition-opacity">
+      <div 
+        className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 opacity-0 group-hover:opacity-100 transition-opacity"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="flex items-center gap-4">
           {/* Play/Pause */}
           <Button
             variant="ghost"
             size="icon"
-            onClick={togglePlay}
+            onClick={(e) => {
+              e.stopPropagation();
+              togglePlay();
+            }}
             className="text-white hover:bg-white/20"
           >
             {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
@@ -290,7 +296,10 @@ export default function VideoPlayer({
             <Button
               variant="ghost"
               size="icon"
-              onClick={toggleMute}
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleMute();
+              }}
               className="text-white hover:bg-white/20"
             >
               {isMuted || volume === 0 ? (
@@ -340,7 +349,10 @@ export default function VideoPlayer({
           <Button
             variant="ghost"
             size="icon"
-            onClick={toggleFullscreen}
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleFullscreen();
+            }}
             className="text-white hover:bg-white/20"
           >
             {isFullscreen ? <Minimize className="w-5 h-5" /> : <Maximize className="w-5 h-5" />}

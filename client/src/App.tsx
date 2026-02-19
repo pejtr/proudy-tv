@@ -14,6 +14,7 @@ import ForYouFeed from "./pages/ForYouFeed";
 import Community from "./pages/Community";
 import CoinsPage from "./pages/CoinsPage";
 import VirtualStreamers from "./pages/VirtualStreamers";
+import EmoteManagement from "./pages/EmoteManagement";
 
 function Router() {
   return (
@@ -28,6 +29,7 @@ function Router() {
       <Route path={"/community"} component={Community} />
       <Route path={"/coins"} component={CoinsPage} />
       <Route path={"/admin/virtual-streamers"} component={VirtualStreamers} />
+      <Route path={"/dashboard/emotes"} component={EmoteManagement} />
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
     </Switch>

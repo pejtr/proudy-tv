@@ -7,6 +7,8 @@ import { TRPCError } from "@trpc/server";
 import * as db from "./db";
 import { invokeLLM } from "./_core/llm";
 import { notifyOwner } from "./_core/notification";
+import { generateImage } from "./_core/imageGeneration";
+import { storagePut } from "./storage";
 
 // Helper to check if user is streamer or admin
 const streamerProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -700,6 +702,114 @@ export const appRouter = router({
         return await db.getGoalHistory(input.streamerId, input.limit);
       }),
    }),
+
+  // Custom Emotes with AI Generation
+  emotes: router({
+    // Get emotes for a streamer
+    getByStreamer: publicProcedure
+      .input(z.object({ streamerId: z.number() }))
+      .query(async ({ input }) => {
+        return await db.getStreamerEmotes(input.streamerId);
+      }),
+
+    // Generate emote with AI
+    generateWithAI: streamerProcedure
+      .input(z.object({
+        name: z.string().min(1).max(50).regex(/^[a-zA-Z0-9_]+$/, 'Only letters, numbers and underscores'),
+        prompt: z.string().min(5).max(500),
+        tier: z.enum(['free', 'subscriber']).default('free'),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        // Check if emote name already exists for this streamer
+        const existing = await db.getEmoteByName(ctx.user.id, input.name);
+        if (existing) {
+          throw new TRPCError({ code: 'BAD_REQUEST', message: 'Emote name already exists' });
+        }
+
+        // Generate image with AI (optimized prompt for emotes)
+        const emotePrompt = `${input.prompt}, emote style, transparent background, simple cartoon style, expressive, 112x112 pixels, high quality digital art`;
+        const { url: imageUrl } = await generateImage({ prompt: emotePrompt });
+
+        if (!imageUrl) {
+          throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Failed to generate emote image' });
+        }
+
+        // Upload to S3 with proper naming
+        const timestamp = Date.now();
+        const randomSuffix = Math.random().toString(36).substring(7);
+        const fileKey = `emotes/${ctx.user.id}/${input.name}-${timestamp}-${randomSuffix}.png`;
+        
+        // Download image and re-upload to S3
+        const imageResponse = await fetch(imageUrl);
+        const imageBuffer = Buffer.from(await imageResponse.arrayBuffer());
+        const { url: s3Url } = await storagePut(fileKey, imageBuffer, 'image/png');
+
+        // Save to database
+        const emoteId = await db.createEmote({
+          streamerId: ctx.user.id,
+          name: input.name,
+          imageUrl: s3Url,
+          tier: input.tier,
+          generatedByAI: true,
+          aiPrompt: input.prompt,
+        });
+
+        return { emoteId, imageUrl: s3Url, success: true };
+      }),
+
+    // Upload custom emote (manual)
+    uploadCustom: streamerProcedure
+      .input(z.object({
+        name: z.string().min(1).max(50).regex(/^[a-zA-Z0-9_]+$/),
+        imageUrl: z.string().url(),
+        tier: z.enum(['free', 'subscriber']).default('free'),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const existing = await db.getEmoteByName(ctx.user.id, input.name);
+        if (existing) {
+          throw new TRPCError({ code: 'BAD_REQUEST', message: 'Emote name already exists' });
+        }
+
+        const emoteId = await db.createEmote({
+          streamerId: ctx.user.id,
+          name: input.name,
+          imageUrl: input.imageUrl,
+          tier: input.tier,
+          generatedByAI: false,
+        });
+
+        return { emoteId, success: true };
+      }),
+
+    // Toggle emote enabled status
+    toggleEnabled: streamerProcedure
+      .input(z.object({ emoteId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        const emote = await db.getEmoteById(input.emoteId);
+        if (!emote || emote.streamerId !== ctx.user.id) {
+          throw new TRPCError({ code: 'FORBIDDEN' });
+        }
+        await db.toggleEmoteEnabled(input.emoteId);
+        return { success: true };
+      }),
+
+    // Delete emote
+    delete: streamerProcedure
+      .input(z.object({ emoteId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        const emote = await db.getEmoteById(input.emoteId);
+        if (!emote || emote.streamerId !== ctx.user.id) {
+          throw new TRPCError({ code: 'FORBIDDEN' });
+        }
+        await db.deleteEmote(input.emoteId);
+        return { success: true };
+      }),
+
+    // Get my emotes (for streamer)
+    getMyEmotes: streamerProcedure.query(async ({ ctx }) => {
+      return await db.getStreamerEmotes(ctx.user.id);
+    }),
+  }),
 
   // Payment & Monetization
   payment: router({

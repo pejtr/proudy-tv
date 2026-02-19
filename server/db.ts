@@ -1109,3 +1109,123 @@ export async function getGoalHistory(streamerId: number, limit: number = 10) {
     .orderBy(desc(streamGoals.completedAt))
     .limit(limit);
 }
+
+
+/**
+ * Custom Emotes Functions
+ */
+export async function createEmote(input: {
+  streamerId: number;
+  name: string;
+  imageUrl: string;
+  tier: "free" | "subscriber";
+  generatedByAI: boolean;
+  aiPrompt?: string;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const { customEmotes } = await import("../drizzle/schema");
+  
+  const [result] = await db.insert(customEmotes).values({
+    streamerId: input.streamerId,
+    name: input.name,
+    imageUrl: input.imageUrl,
+    tier: input.tier,
+    generatedByAI: input.generatedByAI,
+    aiPrompt: input.aiPrompt,
+    isEnabled: true,
+    usageCount: 0,
+  });
+  
+  return result.insertId;
+}
+
+export async function getStreamerEmotes(streamerId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const { customEmotes } = await import("../drizzle/schema");
+  
+  return await db
+    .select()
+    .from(customEmotes)
+    .where(eq(customEmotes.streamerId, streamerId))
+    .orderBy(desc(customEmotes.createdAt));
+}
+
+export async function getEmoteByName(streamerId: number, name: string) {
+  const db = await getDb();
+  if (!db) return null;
+  
+  const { customEmotes } = await import("../drizzle/schema");
+  
+  const [emote] = await db
+    .select()
+    .from(customEmotes)
+    .where(
+      and(
+        eq(customEmotes.streamerId, streamerId),
+        eq(customEmotes.name, name)
+      )
+    )
+    .limit(1);
+  
+  return emote || null;
+}
+
+export async function getEmoteById(emoteId: number) {
+  const db = await getDb();
+  if (!db) return null;
+  
+  const { customEmotes } = await import("../drizzle/schema");
+  
+  const [emote] = await db
+    .select()
+    .from(customEmotes)
+    .where(eq(customEmotes.id, emoteId))
+    .limit(1);
+  
+  return emote || null;
+}
+
+export async function toggleEmoteEnabled(emoteId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const { customEmotes } = await import("../drizzle/schema");
+  
+  // Get current state
+  const emote = await getEmoteById(emoteId);
+  if (!emote) throw new Error("Emote not found");
+  
+  await db
+    .update(customEmotes)
+    .set({ isEnabled: !emote.isEnabled })
+    .where(eq(customEmotes.id, emoteId));
+  
+  return true;
+}
+
+export async function deleteEmote(emoteId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const { customEmotes } = await import("../drizzle/schema");
+  
+  await db.delete(customEmotes).where(eq(customEmotes.id, emoteId));
+  
+  return true;
+}
+
+export async function incrementEmoteUsage(emoteId: number) {
+  const db = await getDb();
+  if (!db) return;
+  
+  const { customEmotes } = await import("../drizzle/schema");
+  
+  await db
+    .update(customEmotes)
+    .set({ usageCount: sql`${customEmotes.usageCount} + 1` })
+    .where(eq(customEmotes.id, emoteId));
+}
