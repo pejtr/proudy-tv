@@ -8,6 +8,9 @@ import Home from "./pages/Home";
 import Browse from "./pages/Browse";
 import StreamPage from "./pages/StreamPage";
 import Dashboard from "./pages/Dashboard";
+import Profile from "./pages/Profile";
+import Messages from "./pages/Messages";
+import ForYouFeed from "./pages/ForYouFeed";
 
 function Router() {
   return (
@@ -16,6 +19,9 @@ function Router() {
       <Route path={"/browse"} component={Browse} />
       <Route path={"/stream/:id"} component={StreamPage} />
       <Route path={"/dashboard"} component={Dashboard} />
+      <Route path={"/profile/:id"} component={Profile} />
+      <Route path={"/messages"} component={Messages} />
+      <Route path={"/feed"} component={ForYouFeed} />
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
     </Switch>

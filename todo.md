@@ -206,3 +206,18 @@
 - [ ] Implement post categories (Discussion, Help, Showcase, Memes, etc.)
 - [ ] Add trending posts algorithm
 - [ ] Create community guidelines and reporting system
+
+
+## UI Implementation (Current Task)
+- [x] Create Profile page component with avatar upload
+- [x] Add bio editing with character counter
+- [x] Add social links input fields (Twitter, Instagram, YouTube, TikTok, Discord)
+- [x] Implement avatar upload to S3
+- [x] Create Messages/Inbox page with conversation list
+- [x] Build chat window component for direct messaging
+- [x] Add real-time message updates (polling every 2-3 seconds)
+- [x] Create For You feed page with infinite scroll
+- [x] Build feed item card component
+- [x] Implement like/share/not interested interactions
+- [x] Add navigation links to new pages in header
+- [x] Add routes to App.tsx for /profile/:id, /messages, /feed
