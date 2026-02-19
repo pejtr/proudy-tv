@@ -7,7 +7,8 @@ import {
   streamSettings, InsertStreamSettings,
   viewerSessions, InsertViewerSession,
   notifications, InsertNotification,
-  messages, follows, stories, storyViews, feedItems, feedInteractions
+  messages, follows, stories, storyViews, feedItems, feedInteractions,
+  communityPosts, communityComments, communityGroups, groupMembers, postLikes
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 import { nanoid } from 'nanoid';
@@ -515,7 +516,19 @@ export async function getFollowingStories(userId: number) {
     ))
     .orderBy(desc(stories.createdAt));
   
-  return activeStories;
+  // Add user data to each story
+  const storiesWithUsers = [];
+  for (const story of activeStories) {
+    const user = await db.select().from(users).where(eq(users.id, story.userId)).limit(1);
+    if (user[0]) {
+      storiesWithUsers.push({
+        ...story,
+        user: user[0],
+      });
+    }
+  }
+  
+  return storiesWithUsers;
 }
 
 export async function getUserStories(userId: number) {
@@ -723,4 +736,246 @@ export async function updateUserAvatar(userId: number, avatarUrl: string) {
   if (!db) return;
   
   await db.update(users).set({ avatarUrl }).where(eq(users.id, userId));
+}
+
+
+// ============= COMMUNITY OPERATIONS =============
+
+export async function createCommunityPost(userId: number, data: {
+  groupId?: number;
+  title: string;
+  content: string;
+  category?: 'discussion' | 'help' | 'showcase' | 'memes' | 'announcement';
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const [result] = await db.insert(communityPosts).values({
+    userId,
+    ...data,
+  });
+  
+  return result.insertId;
+}
+
+export async function getCommunityPosts(groupId?: number, category?: string, limit: number = 20, offset: number = 0) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  let query = db.select().from(communityPosts);
+  
+  if (groupId) {
+    query = query.where(eq(communityPosts.groupId, groupId)) as any;
+  }
+  
+  if (category) {
+    query = query.where(eq(communityPosts.category, category as any)) as any;
+  }
+  
+  const posts = await query
+    .orderBy(desc(communityPosts.isPinned), desc(communityPosts.createdAt))
+    .limit(limit)
+    .offset(offset);
+  
+  // Add user data
+  const postsWithUsers = [];
+  for (const post of posts) {
+    const user = await db.select().from(users).where(eq(users.id, post.userId)).limit(1);
+    if (user[0]) {
+      postsWithUsers.push({
+        ...post,
+        user: user[0],
+      });
+    }
+  }
+  
+  return postsWithUsers;
+}
+
+export async function getPostById(postId: number) {
+  const db = await getDb();
+  if (!db) return null;
+  
+  const post = await db.select().from(communityPosts).where(eq(communityPosts.id, postId)).limit(1);
+  if (!post[0]) return null;
+  
+  const user = await db.select().from(users).where(eq(users.id, post[0].userId)).limit(1);
+  
+  return {
+    ...post[0],
+    user: user[0],
+  };
+}
+
+export async function likePost(postId: number, userId: number) {
+  const db = await getDb();
+  if (!db) return;
+  
+  // Check if already liked
+  const existing = await db.select().from(postLikes)
+    .where(and(
+      eq(postLikes.postId, postId),
+      eq(postLikes.userId, userId)
+    ))
+    .limit(1);
+  
+  if (existing.length === 0) {
+    await db.insert(postLikes).values({
+      postId,
+      userId,
+    });
+    
+    await db.update(communityPosts)
+      .set({ likeCount: sql`${communityPosts.likeCount} + 1` })
+      .where(eq(communityPosts.id, postId));
+  }
+}
+
+export async function unlikePost(postId: number, userId: number) {
+  const db = await getDb();
+  if (!db) return;
+  
+  await db.delete(postLikes).where(and(
+    eq(postLikes.postId, postId),
+    eq(postLikes.userId, userId)
+  ));
+  
+  await db.update(communityPosts)
+    .set({ likeCount: sql`${communityPosts.likeCount} - 1` })
+    .where(eq(communityPosts.id, postId));
+}
+
+export async function addComment(postId: number, userId: number, content: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const [result] = await db.insert(communityComments).values({
+    postId,
+    userId,
+    content,
+  });
+  
+  // Increment comment count
+  await db.update(communityPosts)
+    .set({ commentCount: sql`${communityPosts.commentCount} + 1` })
+    .where(eq(communityPosts.id, postId));
+  
+  return result.insertId;
+}
+
+export async function getPostComments(postId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const comments = await db.select().from(communityComments)
+    .where(eq(communityComments.postId, postId))
+    .orderBy(communityComments.createdAt);
+  
+  // Add user data
+  const commentsWithUsers = [];
+  for (const comment of comments) {
+    const user = await db.select().from(users).where(eq(users.id, comment.userId)).limit(1);
+    if (user[0]) {
+      commentsWithUsers.push({
+        ...comment,
+        user: user[0],
+      });
+    }
+  }
+  
+  return commentsWithUsers;
+}
+
+export async function createGroup(userId: number, data: {
+  name: string;
+  description?: string;
+  isPublic?: boolean;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const [result] = await db.insert(communityGroups).values({
+    ...data,
+    creatorId: userId,
+  });
+  
+  // Auto-join creator as admin
+  await db.insert(groupMembers).values({
+    groupId: result.insertId,
+    userId,
+    role: 'admin',
+  });
+  
+  return result.insertId;
+}
+
+export async function getGroups(limit: number = 20) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return await db.select().from(communityGroups)
+    .where(eq(communityGroups.isPublic, true))
+    .orderBy(desc(communityGroups.memberCount))
+    .limit(limit);
+}
+
+export async function getGroupById(groupId: number) {
+  const db = await getDb();
+  if (!db) return null;
+  
+  const group = await db.select().from(communityGroups).where(eq(communityGroups.id, groupId)).limit(1);
+  return group[0] || null;
+}
+
+export async function joinGroup(groupId: number, userId: number) {
+  const db = await getDb();
+  if (!db) return;
+  
+  // Check if already member
+  const existing = await db.select().from(groupMembers)
+    .where(and(
+      eq(groupMembers.groupId, groupId),
+      eq(groupMembers.userId, userId)
+    ))
+    .limit(1);
+  
+  if (existing.length === 0) {
+    await db.insert(groupMembers).values({
+      groupId,
+      userId,
+      role: 'member',
+    });
+    
+    await db.update(communityGroups)
+      .set({ memberCount: sql`${communityGroups.memberCount} + 1` })
+      .where(eq(communityGroups.id, groupId));
+  }
+}
+
+export async function leaveGroup(groupId: number, userId: number) {
+  const db = await getDb();
+  if (!db) return;
+  
+  await db.delete(groupMembers).where(and(
+    eq(groupMembers.groupId, groupId),
+    eq(groupMembers.userId, userId)
+  ));
+  
+  await db.update(communityGroups)
+    .set({ memberCount: sql`${communityGroups.memberCount} - 1` })
+    .where(eq(communityGroups.id, groupId));
+}
+
+export async function isGroupMember(groupId: number, userId: number) {
+  const db = await getDb();
+  if (!db) return false;
+  
+  const result = await db.select().from(groupMembers)
+    .where(and(
+      eq(groupMembers.groupId, groupId),
+      eq(groupMembers.userId, userId)
+    ))
+    .limit(1);
+  
+  return result.length > 0;
 }

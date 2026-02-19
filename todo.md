@@ -221,3 +221,20 @@
 - [x] Implement like/share/not interested interactions
 - [x] Add navigation links to new pages in header
 - [x] Add routes to App.tsx for /profile/:id, /messages, /feed
+
+
+## New Features (User Request)
+- [x] Create /api/upload-avatar endpoint with S3 storage
+- [x] Connect avatar upload to Profile page
+- [x] Build Stories carousel component (Instagram-style)
+- [x] Add story upload UI
+- [x] Implement auto-advance with progress bars
+- [x] Add 24h auto-expiration for stories (handled in DB schema)
+- [x] Create Community forum page
+- [x] Add community posts CRUD
+- [x] Add comments system
+- [x] Add user-created groups
+- [x] Add group membership management
+- [x] Add community tRPC routers
+- [x] Add community database functions
+- [x] Add /community route to App.tsx

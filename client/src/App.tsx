@@ -11,6 +11,7 @@ import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
 import Messages from "./pages/Messages";
 import ForYouFeed from "./pages/ForYouFeed";
+import Community from "./pages/Community";
 
 function Router() {
   return (
@@ -22,6 +23,7 @@ function Router() {
       <Route path={"/profile/:id"} component={Profile} />
       <Route path={"/messages"} component={Messages} />
       <Route path={"/feed"} component={ForYouFeed} />
+      <Route path={"/community"} component={Community} />
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
     </Switch>

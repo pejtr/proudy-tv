@@ -247,3 +247,100 @@ export type FeedItem = typeof feedItems.$inferSelect;
 export type InsertFeedItem = typeof feedItems.$inferInsert;
 export type FeedInteraction = typeof feedInteractions.$inferSelect;
 export type InsertFeedInteraction = typeof feedInteractions.$inferInsert;
+
+
+/**
+ * Community posts - forum posts and discussions
+ */
+export const communityPosts = mysqlTable("community_posts", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("user_id").notNull(),
+  groupId: int("group_id"), // null for general posts
+  title: varchar("title", { length: 255 }).notNull(),
+  content: text("content").notNull(),
+  category: mysqlEnum("category", ["discussion", "help", "showcase", "memes", "announcement"]).default("discussion").notNull(),
+  isPinned: boolean("is_pinned").default(false).notNull(),
+  likeCount: int("like_count").default(0).notNull(),
+  commentCount: int("comment_count").default(0).notNull(),
+  viewCount: int("view_count").default(0).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  userIdx: index("user_idx").on(table.userId),
+  groupIdx: index("group_idx").on(table.groupId),
+  categoryIdx: index("category_idx").on(table.category),
+}));
+
+export type InsertCommunityPost = typeof communityPosts.$inferInsert;
+
+/**
+ * Community comments - replies to posts
+ */
+export const communityComments = mysqlTable("community_comments", {
+  id: int("id").autoincrement().primaryKey(),
+  postId: int("post_id").notNull(),
+  userId: int("user_id").notNull(),
+  content: text("content").notNull(),
+  likeCount: int("like_count").default(0).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  postIdx: index("post_idx").on(table.postId),
+  userIdx: index("user_idx").on(table.userId),
+}));
+
+export type InsertCommunityComment = typeof communityComments.$inferInsert;
+
+/**
+ * Community groups - user-created communities
+ */
+export const communityGroups = mysqlTable("community_groups", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 100 }).notNull(),
+  description: text("description"),
+  creatorId: int("creator_id").notNull(),
+  iconUrl: text("icon_url"),
+  bannerUrl: text("banner_url"),
+  memberCount: int("member_count").default(0).notNull(),
+  postCount: int("post_count").default(0).notNull(),
+  isPublic: boolean("is_public").default(true).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  creatorIdx: index("creator_idx").on(table.creatorId),
+}));
+
+export type InsertCommunityGroup = typeof communityGroups.$inferInsert;
+
+/**
+ * Group members - tracks group membership
+ */
+export const groupMembers = mysqlTable("group_members", {
+  id: int("id").autoincrement().primaryKey(),
+  groupId: int("group_id").notNull(),
+  userId: int("user_id").notNull(),
+  role: mysqlEnum("role", ["member", "moderator", "admin"]).default("member").notNull(),
+  joinedAt: timestamp("joined_at").defaultNow().notNull(),
+}, (table) => ({
+  groupIdx: index("group_idx").on(table.groupId),
+  userIdx: index("user_idx").on(table.userId),
+  uniqueMembership: index("unique_membership").on(table.groupId, table.userId),
+}));
+
+export type InsertGroupMember = typeof groupMembers.$inferInsert;
+
+/**
+ * Post likes - tracks who liked which posts
+ */
+export const postLikes = mysqlTable("post_likes", {
+  id: int("id").autoincrement().primaryKey(),
+  postId: int("post_id").notNull(),
+  userId: int("user_id").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  postIdx: index("post_idx").on(table.postId),
+  userIdx: index("user_idx").on(table.userId),
+  uniqueLike: index("unique_like").on(table.postId, table.userId),
+}));
+
+export type InsertPostLike = typeof postLikes.$inferInsert;

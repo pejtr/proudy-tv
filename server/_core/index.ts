@@ -8,6 +8,7 @@ import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
 import { setupChatServer } from "../chat";
+import uploadAvatarRouter from "../uploadAvatar";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -39,6 +40,9 @@ async function startServer() {
   
   // OAuth callback under /api/oauth/callback
   registerOAuthRoutes(app);
+  
+  // Avatar upload endpoint
+  app.use("/api", uploadAvatarRouter);
   // tRPC API
   app.use(
     "/api/trpc",

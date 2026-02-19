@@ -531,6 +531,124 @@ export const appRouter = router({
         return { success: true };
       }),
   }),
+
+  // Community Forum
+  community: router({
+    // Create post
+    createPost: protectedProcedure
+      .input(z.object({
+        groupId: z.number().optional(),
+        title: z.string().min(1).max(255),
+        content: z.string().min(1),
+        category: z.enum(['discussion', 'help', 'showcase', 'memes', 'announcement']).optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const postId = await db.createCommunityPost(ctx.user.id, input);
+        return { postId, success: true };
+      }),
+
+    // Get posts
+    getPosts: publicProcedure
+      .input(z.object({
+        groupId: z.number().optional(),
+        category: z.string().optional(),
+        limit: z.number().default(20),
+        offset: z.number().default(0),
+      }))
+      .query(async ({ input }) => {
+        return await db.getCommunityPosts(input.groupId, input.category, input.limit, input.offset);
+      }),
+
+    // Get post by ID
+    getPost: publicProcedure
+      .input(z.object({ postId: z.number() }))
+      .query(async ({ input }) => {
+        return await db.getPostById(input.postId);
+      }),
+
+    // Like post
+    likePost: protectedProcedure
+      .input(z.object({ postId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        await db.likePost(input.postId, ctx.user.id);
+        return { success: true };
+      }),
+
+    // Unlike post
+    unlikePost: protectedProcedure
+      .input(z.object({ postId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        await db.unlikePost(input.postId, ctx.user.id);
+        return { success: true };
+      }),
+
+    // Add comment
+    addComment: protectedProcedure
+      .input(z.object({
+        postId: z.number(),
+        content: z.string().min(1).max(2000),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const commentId = await db.addComment(input.postId, ctx.user.id, input.content);
+        return { commentId, success: true };
+      }),
+
+    // Get comments
+    getComments: publicProcedure
+      .input(z.object({ postId: z.number() }))
+      .query(async ({ input }) => {
+        return await db.getPostComments(input.postId);
+      }),
+
+    // Create group
+    createGroup: protectedProcedure
+      .input(z.object({
+        name: z.string().min(1).max(100),
+        description: z.string().optional(),
+        isPublic: z.boolean().default(true),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const groupId = await db.createGroup(ctx.user.id, input);
+        return { groupId, success: true };
+      }),
+
+    // Get groups
+    getGroups: publicProcedure
+      .input(z.object({ limit: z.number().default(20) }))
+      .query(async ({ input }) => {
+        return await db.getGroups(input.limit);
+      }),
+
+    // Get group by ID
+    getGroup: publicProcedure
+      .input(z.object({ groupId: z.number() }))
+      .query(async ({ input }) => {
+        return await db.getGroupById(input.groupId);
+      }),
+
+    // Join group
+    joinGroup: protectedProcedure
+      .input(z.object({ groupId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        await db.joinGroup(input.groupId, ctx.user.id);
+        return { success: true };
+      }),
+
+    // Leave group
+    leaveGroup: protectedProcedure
+      .input(z.object({ groupId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        await db.leaveGroup(input.groupId, ctx.user.id);
+        return { success: true };
+      }),
+
+    // Check membership
+    isMember: protectedProcedure
+      .input(z.object({ groupId: z.number() }))
+      .query(async ({ ctx, input }) => {
+        return await db.isGroupMember(input.groupId, ctx.user.id);
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;
