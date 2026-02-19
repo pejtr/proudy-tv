@@ -1229,3 +1229,131 @@ export async function incrementEmoteUsage(emoteId: number) {
     .set({ usageCount: sql`${customEmotes.usageCount} + 1` })
     .where(eq(customEmotes.id, emoteId));
 }
+
+
+/**
+ * Partner Program Functions
+ */
+export async function updatePartnerTier(userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const { determinePartnerTier } = await import("./products");
+  
+  // Get current user stats
+  const [user] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+  if (!user) throw new Error("User not found");
+  
+  // Calculate new tier
+  const newTier = determinePartnerTier(user.monthlyStreamHours, user.activeSubscribers);
+  
+  // Update if changed
+  if (newTier !== user.partnerTier) {
+    await db
+      .update(users)
+      .set({ 
+        partnerTier: newTier,
+        lastTierCheck: new Date(),
+      })
+      .where(eq(users.id, userId));
+    
+    return { upgraded: true, newTier, oldTier: user.partnerTier };
+  }
+  
+  return { upgraded: false, newTier: user.partnerTier, oldTier: user.partnerTier };
+}
+
+export async function incrementStreamHours(userId: number, hours: number) {
+  const db = await getDb();
+  if (!db) return;
+  
+  await db
+    .update(users)
+    .set({ monthlyStreamHours: sql`${users.monthlyStreamHours} + ${hours}` })
+    .where(eq(users.id, userId));
+  
+  // Check for tier upgrade
+  await updatePartnerTier(userId);
+}
+
+export async function updateActiveSubscribers(userId: number) {
+  const db = await getDb();
+  if (!db) return;
+  
+  const { subscriptions } = await import("../drizzle/schema");
+  
+  // Count active subscriptions for this streamer
+  const result = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(subscriptions)
+    .where(
+      and(
+        eq(subscriptions.streamerId, userId),
+        eq(subscriptions.status, 'active')
+      )
+    );
+  
+  const count = result[0]?.count || 0;
+  
+  await db
+    .update(users)
+    .set({ activeSubscribers: count })
+    .where(eq(users.id, userId));
+  
+  // Check for tier upgrade
+  await updatePartnerTier(userId);
+}
+
+export async function getPartnerProgress(userId: number) {
+  const db = await getDb();
+  if (!db) return null;
+  
+  const [user] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+  if (!user) return null;
+  
+  const { PARTNER_TIERS } = await import("./products");
+  
+  const currentTier = PARTNER_TIERS[user.partnerTier];
+  const nextTier = user.partnerTier === 'basic' ? PARTNER_TIERS.affiliate : 
+                   user.partnerTier === 'affiliate' ? PARTNER_TIERS.partner : null;
+  
+  return {
+    currentTier: {
+      name: currentTier.name,
+      badge: currentTier.badge,
+      revenueSplit: currentTier.revenueSplit,
+    },
+    stats: {
+      monthlyHours: user.monthlyStreamHours,
+      activeSubscribers: user.activeSubscribers,
+    },
+    nextTier: nextTier ? {
+      name: nextTier.name,
+      badge: nextTier.badge,
+      requiredHours: nextTier.minHours,
+      requiredSubscribers: nextTier.minSubscribers,
+      hoursRemaining: Math.max(0, nextTier.minHours - user.monthlyStreamHours),
+      subscribersRemaining: Math.max(0, nextTier.minSubscribers - user.activeSubscribers),
+    } : null,
+  };
+}
+
+export async function resetMonthlyStats() {
+  const db = await getDb();
+  if (!db) return;
+  
+  // Reset monthly hours for all users at the start of each month
+  await db
+    .update(users)
+    .set({ 
+      monthlyStreamHours: 0,
+      lastTierCheck: new Date(),
+    });
+  
+  // Recalculate all tiers
+  const allUsers = await db.select().from(users).where(eq(users.role, 'streamer'));
+  
+  for (const user of allUsers) {
+    await updateActiveSubscribers(user.id);
+  }
+}

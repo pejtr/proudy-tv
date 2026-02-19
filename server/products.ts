@@ -73,23 +73,69 @@ export const DONATION_AMOUNTS = [
 ];
 
 /**
- * Revenue Split - 80% to streamer, 20% to platform
+ * Partner Program Tiers with Revenue Splits
+ */
+export const PARTNER_TIERS = {
+  basic: {
+    name: 'Basic Streamer',
+    minHours: 0,
+    minSubscribers: 0,
+    revenueSplit: { streamer: 0.60, platform: 0.40 },
+    badge: '🎬',
+    requirements: 'Ověřený email',
+  },
+  affiliate: {
+    name: 'Affiliate',
+    minHours: 20,
+    minSubscribers: 10,
+    revenueSplit: { streamer: 0.70, platform: 0.30 },
+    badge: '⭐',
+    requirements: '20+ hodin/měsíc, 10+ subscribers',
+  },
+  partner: {
+    name: 'PROUDY Partner',
+    minHours: 50,
+    minSubscribers: 50,
+    revenueSplit: { streamer: 0.80, platform: 0.20 },
+    badge: '👑',
+    requirements: '50+ hodin/měsíc, 50+ subscribers, KYC',
+  },
+} as const;
+
+export type PartnerTier = keyof typeof PARTNER_TIERS;
+
+/**
+ * Legacy revenue split (kept for backwards compatibility)
+ * @deprecated Use PARTNER_TIERS instead
  */
 export const REVENUE_SPLIT = {
-  streamer: 0.80,
-  platform: 0.20,
+  streamer: 0.60, // Default to Basic tier
+  platform: 0.40,
 };
 
 /**
- * Calculate streamer earnings from coins
+ * Calculate streamer earnings from coins based on partner tier
  */
-export function calculateStreamerEarnings(coins: number): number {
-  return Math.floor(coins * REVENUE_SPLIT.streamer);
+export function calculateStreamerEarnings(coins: number, tier: PartnerTier = 'basic'): number {
+  return Math.floor(coins * PARTNER_TIERS[tier].revenueSplit.streamer);
 }
 
 /**
- * Calculate platform fee from coins
+ * Calculate platform fee from coins based on partner tier
  */
-export function calculatePlatformFee(coins: number): number {
-  return Math.floor(coins * REVENUE_SPLIT.platform);
+export function calculatePlatformFee(coins: number, tier: PartnerTier = 'basic'): number {
+  return Math.floor(coins * PARTNER_TIERS[tier].revenueSplit.platform);
+}
+
+/**
+ * Determine partner tier based on hours and subscribers
+ */
+export function determinePartnerTier(monthlyHours: number, activeSubscribers: number): PartnerTier {
+  if (monthlyHours >= PARTNER_TIERS.partner.minHours && activeSubscribers >= PARTNER_TIERS.partner.minSubscribers) {
+    return 'partner';
+  }
+  if (monthlyHours >= PARTNER_TIERS.affiliate.minHours && activeSubscribers >= PARTNER_TIERS.affiliate.minSubscribers) {
+    return 'affiliate';
+  }
+  return 'basic';
 }

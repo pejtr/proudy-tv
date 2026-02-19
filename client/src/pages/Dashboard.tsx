@@ -13,6 +13,7 @@ import { Link, useLocation } from "wouter";
 import { Radio, Settings, Eye, Copy, Check } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import PartnerProgress from "@/components/PartnerProgress";
 
 export default function Dashboard() {
   const { user, isAuthenticated } = useAuth();
@@ -107,6 +108,7 @@ export default function Dashboard() {
         <Tabs defaultValue="streams" className="space-y-6">
           <TabsList>
             <TabsTrigger value="streams">My Streams</TabsTrigger>
+            <TabsTrigger value="partner">Partner Program</TabsTrigger>
             <TabsTrigger value="settings">Stream Settings</TabsTrigger>
           </TabsList>
 
@@ -229,6 +231,11 @@ export default function Dashboard() {
                 )}
               </div>
             </div>
+          </TabsContent>
+
+          {/* Partner Program Tab */}
+          <TabsContent value="partner" className="space-y-6">
+            <PartnerProgress />
           </TabsContent>
 
           {/* Settings Tab */}

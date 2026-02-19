@@ -10,10 +10,16 @@ export const users = mysqlTable("users", {
   email: varchar("email", { length: 320 }),
   loginMethod: varchar("loginMethod", { length: 64 }),
   role: mysqlEnum("role", ["viewer", "streamer", "admin"]).default("viewer").notNull(),
+  emailVerified: boolean("email_verified").default(false).notNull(),
   // Profile fields
   avatarUrl: text("avatar_url"),
   bio: text("bio"),
   socialLinks: text("social_links"), // JSON: { twitter, instagram, youtube, tiktok, discord }
+  // Partner Program
+  partnerTier: mysqlEnum("partner_tier", ["basic", "affiliate", "partner"]).default("basic").notNull(),
+  monthlyStreamHours: int("monthly_stream_hours").default(0).notNull(),
+  activeSubscribers: int("active_subscribers").default(0).notNull(),
+  lastTierCheck: timestamp("last_tier_check").defaultNow().notNull(),
   // Monetization
   coinsBalance: int("coins_balance").default(0).notNull(),
   watchPoints: int("watch_points").default(0).notNull(),

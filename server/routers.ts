@@ -811,6 +811,20 @@ export const appRouter = router({
     }),
   }),
 
+  // Partner Program
+  partner: router({
+    // Get my partner progress
+    getMyProgress: streamerProcedure.query(async ({ ctx }) => {
+      return await db.getPartnerProgress(ctx.user.id);
+    }),
+
+    // Manually trigger tier check (for testing)
+    checkTier: streamerProcedure.mutation(async ({ ctx }) => {
+      const result = await db.updatePartnerTier(ctx.user.id);
+      return result;
+    }),
+  }),
+
   // Payment & Monetization
   payment: router({
     // Create Stripe Checkout session for coin purchase

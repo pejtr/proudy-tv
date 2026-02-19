@@ -85,7 +85,7 @@ export default function Home() {
 
             <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
               Streamuj s AR filtry, voice changerem a 3D avatary. 
-              Multistreaming support. 80/20 revenue split. Žádné limity.
+              Multistreaming support. Až 80/20 revenue split. Žádné limity.
             </p>
 
             {/* CTA Buttons */}
@@ -133,9 +133,9 @@ export default function Home() {
                 <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-green-500/20 to-emerald-500/20 flex items-center justify-center mx-auto">
                   <Users className="h-8 w-8 text-green-400" />
                 </div>
-                <h3 className="text-xl font-bold">80/20 Split</h3>
+                <h3 className="text-xl font-bold">Partner Program</h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  Férové podmínky. 80% příjmů jde streamerovi, ne platformě
+                  Férové podmínky. 60-80% příjmů podle tier statusu (Basic → Affiliate → Partner 👑)
                 </p>
               </div>
             </div>

@@ -427,3 +427,22 @@
 - [x] Fix fullscreen button not responding in VideoPlayer (event propagation issue)
 
 - [x] Change revenue split from 85/15 to 80/20 (80% streamer, 20% platform)
+
+
+## PROUDY Partner Program (Completed)
+- [x] Add partnerTier field to users table (basic, affiliate, partner)
+- [x] Add monthlyStreamHours and activeSubscribers tracking to users
+- [x] Add emailVerified field (required for streaming)
+- [x] Update REVENUE_SPLIT to be dynamic based on partner tier (60/40, 70/30, 80/20)
+- [x] Create determinePartnerTier() function in products.ts
+- [x] Create partner tier calculation functions in db.ts
+- [x] Add tRPC query for partner progress (partner.getMyProgress)
+- [x] Create PartnerProgress dashboard component with progress bars
+- [x] Create PartnerBadge component (🎬 ⭐ 👑)
+- [x] Update revenue display on homepage (60-80% podle tier)
+- [x] Add Partner Program tab to Dashboard
+- [x] Write vitest tests for tier calculation logic (38 tests passing)
+- [ ] Add automatic tier upgrade check (monthly cron job)
+- [ ] Create partner achievement notifications
+- [ ] Add partner badge to chat messages
+- [ ] Implement email verification flow
