@@ -15,6 +15,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import PartnerProgress from "@/components/PartnerProgress";
 import EmailVerificationBanner from "@/components/EmailVerificationBanner";
+import VerifiedBadge from "@/components/VerifiedBadge";
 
 export default function Dashboard() {
   const { user, isAuthenticated } = useAuth();
@@ -100,7 +101,10 @@ export default function Dashboard() {
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">Streamer Dashboard</h1>
+          <h1 className="text-3xl font-bold mb-2 flex items-center gap-2">
+            Streamer Dashboard
+            {user?.emailVerified && <VerifiedBadge verified={true} size="lg" />}
+          </h1>
           <p className="text-muted-foreground">
             Manage your streams and settings
           </p>

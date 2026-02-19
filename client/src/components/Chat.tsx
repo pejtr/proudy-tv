@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Send, AlertCircle, Smile, Coins, Volume2 } from 'lucide-react';
 import EmotePicker, { renderEmotesInMessage } from '@/components/EmotePicker';
+import VerifiedBadge from '@/components/VerifiedBadge';
 import {
   Popover,
   PopoverContent,
@@ -29,6 +30,7 @@ interface ChatMessage {
   highlighted?: boolean;
   highlightAmount?: number;
   ttsEnabled?: boolean;
+  emailVerified?: boolean;
 }
 
 // Parse @mentions in message
@@ -281,8 +283,10 @@ export default function Chat({ streamId, className = '' }: ChatProps) {
                     )}
                     
                     <div className="flex items-start gap-2">
-                      <span className={`font-bold text-sm min-w-[80px] ${isHighlighted ? 'text-yellow-500' : 'text-primary'}`}>
-                        {msg.username}:
+                      <span className={`font-bold text-sm min-w-[80px] flex items-center gap-1 ${isHighlighted ? 'text-yellow-500' : 'text-primary'}`}>
+                        {msg.username}
+                        {msg.emailVerified && <VerifiedBadge verified={true} size="sm" showTooltip={false} />}
+                        :
                       </span>
                       <span className={`text-sm break-words flex-1 ${
                         msg.moderated ? 'text-muted-foreground italic' : 'text-foreground'

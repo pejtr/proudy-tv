@@ -8,6 +8,7 @@ import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
 import { Link, useParams, useLocation } from "wouter";
 import { Camera, Save, Twitter, Instagram, Youtube, Music, MessageCircle, Heart, Users } from "lucide-react";
+import VerifiedBadge from "@/components/VerifiedBadge";
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { storagePut } from "../../../server/storage";
@@ -279,7 +280,10 @@ export default function Profile() {
               ) : (
                 <>
                   <div>
-                    <h1 className="text-3xl font-bold">{profile.name || "Anonymous"}</h1>
+                    <h1 className="text-3xl font-bold flex items-center gap-2">
+                      {profile.name || "Anonymous"}
+                      <VerifiedBadge verified={profile.emailVerified || false} size="lg" />
+                    </h1>
                     <p className="text-muted-foreground">
                       {followerCount || 0} followers
                     </p>
@@ -288,6 +292,20 @@ export default function Profile() {
                   {profile.bio && (
                     <p className="text-foreground">{profile.bio}</p>
                   )}
+
+                  {/* Email Verification Status */}
+                  <div className="flex items-center gap-2 text-sm">
+                    {profile.emailVerified ? (
+                      <span className="text-blue-500 flex items-center gap-1">
+                        <VerifiedBadge verified={true} size="sm" showTooltip={false} />
+                        Email ověřen
+                      </span>
+                    ) : (
+                      <span className="text-muted-foreground">
+                        Email neověřen
+                      </span>
+                    )}
+                  </div>
                 </>
               )}
               

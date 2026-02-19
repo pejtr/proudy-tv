@@ -466,3 +466,13 @@
 - [x] Fix Browse page to show live video preview instead of black box
 - [x] Add video element with HLS playback for stream thumbnails
 - [x] Implement fallback thumbnail image if stream not available
+
+
+## Verified Badge & Status Display (Completed)
+- [x] Create VerifiedBadge component with checkmark icon (CheckCircle from lucide-react)
+- [x] Add verified badge to user names in Profile page
+- [x] Display email verification status in Profile page ("Email ověřen" / "Email neověřen")
+- [x] Add verified badge to chat messages (next to username)
+- [x] Add verified badge to Dashboard header
+- [x] Write vitest tests for verified badge display logic (53 tests passing)
+- [ ] Show verified badge in streamer cards on Browse page (requires backend data)
