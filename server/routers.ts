@@ -699,7 +699,54 @@ export const appRouter = router({
       .query(async ({ input }) => {
         return await db.getGoalHistory(input.streamerId, input.limit);
       }),
+   }),
+
+  // Payment & Monetization
+  payment: router({
+    // Create Stripe Checkout session for coin purchase
+    createCheckout: protectedProcedure
+      .input(z.object({
+        productType: z.enum(['coins', 'subscription', 'donation']),
+        coinAmount: z.number().optional(),
+        priceInCzk: z.number(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+        
+        const session = await stripe.checkout.sessions.create({
+          payment_method_types: ['card'],
+          line_items: [
+            {
+              price_data: {
+                currency: 'czk',
+                product_data: {
+                  name: input.productType === 'coins' 
+                    ? `${input.coinAmount} Proudy Coins`
+                    : input.productType === 'subscription'
+                    ? 'Monthly Subscription (88 coins)'
+                    : 'Donation',
+                  description: input.productType === 'coins'
+                    ? `Purchase ${input.coinAmount} Proudy Coins (1 coin = 1 Kč)`
+                    : undefined,
+                },
+                unit_amount: input.priceInCzk * 100, // Convert to cents
+              },
+              quantity: 1,
+            },
+          ],
+          mode: 'payment',
+          success_url: `${ctx.req.headers.origin}/coins?success=true`,
+          cancel_url: `${ctx.req.headers.origin}/coins?canceled=true`,
+          client_reference_id: ctx.user.id.toString(),
+          metadata: {
+            user_id: ctx.user.id.toString(),
+            product_type: input.productType,
+            coin_amount: input.coinAmount?.toString() || '0',
+          },
+        });
+
+        return { url: session.url };
+      }),
   }),
 });
-
 export type AppRouter = typeof appRouter;

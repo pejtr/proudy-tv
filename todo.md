@@ -345,3 +345,29 @@
 - [ ] Implement volume control for TTS
 - [ ] Add highlight duration settings
 - [ ] Create streamer dashboard for TTS settings
+
+
+## Gift Subscriptions (New User Request)
+- [ ] Add gift_subscriptions table to database
+- [ ] Add payment flow for gift subs (88 coins)
+- [ ] Create gift sub UI modal (select recipient or random)
+- [ ] Implement chat announcement for gift subs
+- [ ] Add celebration animation (confetti effect)
+- [ ] Create gift history tracking
+- [ ] Add top gifters leaderboard per streamer
+- [ ] Implement mass gifting (5, 10, 20 subs at once)
+- [ ] Add notification to recipient when they receive gift sub
+
+
+## Custom Animated Emotes Update (User Request - Replace Emoji Picker)
+- [ ] Remove emoji-picker-react dependency
+- [ ] Create custom emote picker component (Twitch-style)
+- [ ] Add support for animated GIF/APNG emotes
+- [ ] Implement global PROUDY platform emotes
+- [ ] Add streamer-specific emote slots
+- [ ] Create emote upload UI for streamers
+- [ ] Integrate AI emote generator (text-to-image)
+- [ ] Add subscriber-only emote tiers
+- [ ] Implement emote autocomplete in chat (:emotename:)
+- [ ] Add emote preview on hover
+- [ ] Create emote management dashboard for streamers
