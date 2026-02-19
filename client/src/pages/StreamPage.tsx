@@ -6,6 +6,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
 import { Link, useParams } from "wouter";
+import VideoPlayer from '@/components/VideoPlayer';
+import Chat from '@/components/Chat';
 import { Eye, Send, AlertCircle } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
@@ -135,42 +137,24 @@ export default function StreamPage() {
         <div className="grid lg:grid-cols-[1fr_400px] gap-6">
           {/* Video Player */}
           <div className="space-y-4">
-            <Card className="rainbow-border overflow-hidden">
-              <div className="relative aspect-video bg-muted">
-                {stream.isLive ? (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <div className="text-center">
-                      <div className="text-6xl rainbow-text font-bold mb-4">LIVE</div>
-                      <p className="text-muted-foreground">
-                        Video player will be implemented with HLS/DASH support
-                      </p>
-                    </div>
+            {stream.isLive ? (
+              <VideoPlayer
+                src={stream.hlsUrl || 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8'}
+                poster={stream.thumbnailUrl || undefined}
+                autoPlay
+                className="rainbow-border"
+              />
+            ) : (
+              <Card className="rainbow-border overflow-hidden">
+                <div className="relative aspect-video bg-muted flex items-center justify-center">
+                  <div className="text-center">
+                    <AlertCircle className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                    <p className="text-xl font-bold mb-2">Stream Offline</p>
+                    <p className="text-muted-foreground">This stream is not currently live</p>
                   </div>
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <div className="text-center">
-                      <AlertCircle className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-                      <p className="text-xl font-bold mb-2">Stream Offline</p>
-                      <p className="text-muted-foreground">This stream is not currently live</p>
-                    </div>
-                  </div>
-                )}
-
-                {stream.isLive && (
-                  <>
-                    <div className="absolute top-4 left-4 bg-red-600 text-white px-4 py-2 rounded-full text-sm font-bold flex items-center gap-2 animate-pulse-live">
-                      <span className="w-3 h-3 bg-white rounded-full"></span>
-                      LIVE
-                    </div>
-
-                    <div className="absolute top-4 right-4 bg-black/70 text-white px-4 py-2 rounded-full text-sm font-bold flex items-center gap-2">
-                      <Eye className="h-4 w-4" />
-                      {viewerCount || 0}
-                    </div>
-                  </>
-                )}
-              </div>
-            </Card>
+                </div>
+              </Card>
+            )}
 
             {/* Stream Info */}
             <div>
@@ -194,61 +178,7 @@ export default function StreamPage() {
           </div>
 
           {/* Chat */}
-          <Card className="rainbow-border flex flex-col h-[calc(100vh-200px)]">
-            <div className="border-b border-border p-4">
-              <h2 className="font-bold text-lg">Live Chat</h2>
-            </div>
-
-            <ScrollArea className="flex-1 p-4">
-              <div className="space-y-3">
-                {chatHistory && chatHistory.length > 0 ? (
-                  chatHistory.map((msg) => (
-                    <div key={msg.id} className="text-sm">
-                      <span className="font-bold text-primary">{msg.username}:</span>{" "}
-                      <span className="text-foreground">{msg.message}</span>
-                    </div>
-                  ))
-                ) : (
-                  <div className="text-center text-muted-foreground py-8">
-                    No messages yet. Be the first to chat!
-                  </div>
-                )}
-                <div ref={chatEndRef} />
-              </div>
-            </ScrollArea>
-
-            <div className="border-t border-border p-4">
-              {isAuthenticated ? (
-                <form onSubmit={handleSendMessage} className="flex gap-2">
-                  <Input
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    placeholder="Send a message..."
-                    maxLength={500}
-                    className="flex-1"
-                  />
-                  <Button 
-                    type="submit" 
-                    size="icon"
-                    disabled={!message.trim() || sendMessageMutation.isPending}
-                  >
-                    <Send className="h-4 w-4" />
-                  </Button>
-                </form>
-              ) : (
-                <div className="text-center">
-                  <p className="text-sm text-muted-foreground mb-2">
-                    Sign in to chat
-                  </p>
-                  <a href={getLoginUrl()}>
-                    <Button size="sm" className="w-full">
-                      Sign In
-                    </Button>
-                  </a>
-                </div>
-              )}
-            </div>
-          </Card>
+          <Chat streamId={streamId} className="h-[calc(100vh-200px)] rainbow-border" />
         </div>
       </div>
     </div>

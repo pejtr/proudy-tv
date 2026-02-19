@@ -293,6 +293,244 @@ export const appRouter = router({
       return await db.getUnreadNotifications();
     }),
   }),
+
+  // Messages (DM/Inbox)
+  messages: router({
+    // Send message
+    send: protectedProcedure
+      .input(z.object({
+        receiverId: z.number(),
+        message: z.string().min(1).max(2000),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const messageId = await db.sendMessage(ctx.user.id, input.receiverId, input.message);
+        return { messageId, success: true };
+      }),
+
+    // Get conversations list
+    getConversations: protectedProcedure.query(async ({ ctx }) => {
+      return await db.getUserConversations(ctx.user.id);
+    }),
+
+    // Get messages with specific user
+    getMessages: protectedProcedure
+      .input(z.object({
+        otherUserId: z.number(),
+        limit: z.number().default(50),
+      }))
+      .query(async ({ ctx, input }) => {
+        return await db.getMessagesBetweenUsers(ctx.user.id, input.otherUserId, input.limit);
+      }),
+
+    // Mark messages as read
+    markAsRead: protectedProcedure
+      .input(z.object({ senderId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        await db.markMessagesAsRead(ctx.user.id, input.senderId);
+        return { success: true };
+      }),
+
+    // Get unread count
+    getUnreadCount: protectedProcedure.query(async ({ ctx }) => {
+      return await db.getUnreadMessageCount(ctx.user.id);
+    }),
+  }),
+
+  // Follow/Favorite System
+  follows: router({
+    // Follow user
+    follow: protectedProcedure
+      .input(z.object({ userId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user.id === input.userId) {
+          throw new TRPCError({ code: 'BAD_REQUEST', message: 'Cannot follow yourself' });
+        }
+        await db.followUser(ctx.user.id, input.userId);
+        return { success: true };
+      }),
+
+    // Unfollow user
+    unfollow: protectedProcedure
+      .input(z.object({ userId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        await db.unfollowUser(ctx.user.id, input.userId);
+        return { success: true };
+      }),
+
+    // Check if following
+    isFollowing: protectedProcedure
+      .input(z.object({ userId: z.number() }))
+      .query(async ({ ctx, input }) => {
+        return await db.isFollowing(ctx.user.id, input.userId);
+      }),
+
+    // Get followers
+    getFollowers: publicProcedure
+      .input(z.object({ userId: z.number() }))
+      .query(async ({ input }) => {
+        return await db.getFollowers(input.userId);
+      }),
+
+    // Get following
+    getFollowing: publicProcedure
+      .input(z.object({ userId: z.number() }))
+      .query(async ({ input }) => {
+        return await db.getFollowing(input.userId);
+      }),
+
+    // Get follower count
+    getFollowerCount: publicProcedure
+      .input(z.object({ userId: z.number() }))
+      .query(async ({ input }) => {
+        return await db.getFollowerCount(input.userId);
+      }),
+  }),
+
+  // Stories
+  stories: router({
+    // Create story
+    create: protectedProcedure
+      .input(z.object({
+        mediaUrl: z.string().url(),
+        mediaType: z.enum(['image', 'video']),
+        duration: z.number().default(15),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const storyId = await db.createStory(ctx.user.id, input.mediaUrl, input.mediaType, input.duration);
+        return { storyId, success: true };
+      }),
+
+    // Get active stories from followed users
+    getFollowingStories: protectedProcedure.query(async ({ ctx }) => {
+      return await db.getFollowingStories(ctx.user.id);
+    }),
+
+    // Get user's stories
+    getUserStories: publicProcedure
+      .input(z.object({ userId: z.number() }))
+      .query(async ({ input }) => {
+        return await db.getUserStories(input.userId);
+      }),
+
+    // View story
+    view: protectedProcedure
+      .input(z.object({ storyId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        await db.viewStory(input.storyId, ctx.user.id);
+        return { success: true };
+      }),
+
+    // Get story viewers
+    getViewers: protectedProcedure
+      .input(z.object({ storyId: z.number() }))
+      .query(async ({ ctx, input }) => {
+        const story = await db.getStoryById(input.storyId);
+        if (!story || story.userId !== ctx.user.id) {
+          throw new TRPCError({ code: 'FORBIDDEN' });
+        }
+        return await db.getStoryViewers(input.storyId);
+      }),
+
+    // Delete story
+    delete: protectedProcedure
+      .input(z.object({ storyId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        const story = await db.getStoryById(input.storyId);
+        if (!story || story.userId !== ctx.user.id) {
+          throw new TRPCError({ code: 'FORBIDDEN' });
+        }
+        await db.deleteStory(input.storyId);
+        return { success: true };
+      }),
+  }),
+
+  // For You Feed
+  feed: router({
+    // Get personalized feed
+    getForYou: protectedProcedure
+      .input(z.object({
+        limit: z.number().default(20),
+        offset: z.number().default(0),
+      }))
+      .query(async ({ ctx, input }) => {
+        return await db.getPersonalizedFeed(ctx.user.id, input.limit, input.offset);
+      }),
+
+    // Create feed item (clip/highlight)
+    create: protectedProcedure
+      .input(z.object({
+        streamId: z.number().optional(),
+        title: z.string().min(1).max(255),
+        description: z.string().optional(),
+        mediaUrl: z.string().url(),
+        thumbnailUrl: z.string().url().optional(),
+        duration: z.number(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const feedItemId = await db.createFeedItem(ctx.user.id, input);
+        return { feedItemId, success: true };
+      }),
+
+    // Like feed item
+    like: protectedProcedure
+      .input(z.object({ feedItemId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        await db.likeFeedItem(input.feedItemId, ctx.user.id);
+        return { success: true };
+      }),
+
+    // Mark as not interested
+    notInterested: protectedProcedure
+      .input(z.object({ feedItemId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        await db.markNotInterested(input.feedItemId, ctx.user.id);
+        return { success: true };
+      }),
+
+    // Record view
+    recordView: protectedProcedure
+      .input(z.object({ feedItemId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        await db.recordFeedView(input.feedItemId, ctx.user.id);
+        return { success: true };
+      }),
+  }),
+
+  // Profile Management
+  profile: router({
+    // Get user profile
+    get: publicProcedure
+      .input(z.object({ userId: z.number() }))
+      .query(async ({ input }) => {
+        return await db.getUserProfile(input.userId);
+      }),
+
+    // Update profile
+    update: protectedProcedure
+      .input(z.object({
+        name: z.string().optional(),
+        bio: z.string().max(500).optional(),
+        socialLinks: z.object({
+          twitter: z.string().optional(),
+          instagram: z.string().optional(),
+          youtube: z.string().optional(),
+          tiktok: z.string().optional(),
+          discord: z.string().optional(),
+        }).optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        await db.updateUserProfile(ctx.user.id, input);
+        return { success: true };
+      }),
+
+    // Update avatar
+    updateAvatar: protectedProcedure
+      .input(z.object({ avatarUrl: z.string().url() }))
+      .mutation(async ({ ctx, input }) => {
+        await db.updateUserAvatar(ctx.user.id, input.avatarUrl);
+        return { success: true };
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;

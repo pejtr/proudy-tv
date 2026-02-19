@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { getLoginUrl } from "@/const";
 import { Link } from "wouter";
 import { Play, Users, Sparkles, Radio } from "lucide-react";
-import { ProudyLogo } from "@/components/ProudyLogo";
+
 
 export default function Home() {
   const { user, isAuthenticated } = useAuth();
@@ -15,7 +15,7 @@ export default function Home() {
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <Link href="/">
             <div className="flex items-center gap-3 cursor-pointer group">
-              <ProudyLogo size="small" />
+              <img src="/proudy-logo.png" alt="PROUDY" className="h-10 w-auto" />
               <div className="text-2xl gradient-text-animated font-bold">PROUDY</div>
             </div>
           </Link>
@@ -56,18 +56,18 @@ export default function Home() {
         
         <div className="container mx-auto px-4 py-20 relative">
           <div className="max-w-5xl mx-auto text-center space-y-12">
-            {/* Animated Logo */}
-            <div className="flex justify-center mb-8 animate-fade-in-up">
-              <ProudyLogo size="large" />
-            </div>
-
-            {/* Animated Title */}
-            <div className="space-y-4 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+            {/* Animated Logo and Title */}
+            <div className="flex flex-col items-center animate-fade-in-up">
+              <img src="/proudy-logo.png" alt="PROUDY Logo" className="w-64 h-auto mb-2" />
+              
+              {/* Title directly below logo */}
+              <div className="space-y-4" style={{ animationDelay: '0.2s' }}>
               <div className="text-7xl md:text-8xl gradient-text-animated font-bold tracking-tight">
                 PROUDY
               </div>
               <div className="text-sm text-muted-foreground tracking-[0.3em] uppercase">
                 Česká Streamovací Platforma
+              </div>
               </div>
             </div>
 

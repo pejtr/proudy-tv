@@ -1,0 +1,1 @@
+ALTER TABLE `streams` ADD `hls_url` text;
