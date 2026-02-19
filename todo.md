@@ -279,11 +279,11 @@
 ## Interactive Chat Polls (New User Request)
 - [x] Create chat_polls table (question, options, duration, sticky)
 - [x] Create poll_votes table (one vote per user)
-- [ ] Add poll creation UI for streamer/moderators
-- [ ] Implement sticky poll display in chat (pinned at top)
-- [ ] Add real-time voting with live results
-- [ ] Create visual progress bars for poll options
-- [ ] Add auto-close after time limit
+- [x] Add poll creation UI for streamer/moderators (ChatPoll component)
+- [x] Implement sticky poll display in chat (pinned at top)
+- [x] Add real-time voting with live results
+- [x] Create visual progress bars for poll options
+- [x] Add auto-close after time limit (countdown timer)
 - [ ] Implement poll results announcement
 - [ ] Add poll history/archive
 
@@ -294,8 +294,8 @@
 - [ ] Create emote management UI for streamers
 - [ ] Implement emote upload (manual + AI generated)
 - [x] Add unlock tiers (free vs subscriber-only emotes) in schema
-- [ ] Build emote picker component for chat
-- [ ] Implement emote parsing in chat messages (:emoteName:)
+- [x] Build emote picker component for chat (EmotePicker with 30 global + 8 sub emotes)
+- [x] Implement emote parsing in chat messages (:emoteName:)
 - [ ] Create emote preview/gallery page per streamer
 - [ ] Add emote packs/collections
 - [ ] Implement emote usage statistics
@@ -326,8 +326,8 @@
 
 
 ## Chat @Mentions System (New User Request)
-- [ ] Add mention parsing to chat messages (detect @username)
-- [ ] Add visual highlight for mentioned users
+- [x] Add mention parsing to chat messages (detect @username)
+- [x] Add visual highlight for mentioned users
 - [ ] Implement notification sound when user is mentioned
 - [ ] Add mention counter badge
 - [ ] Create autocomplete dropdown for @mentions
@@ -335,14 +335,34 @@
 - [ ] Add "jump to mention" functionality
 
 
+## AI Virtual Streamers Admin Panel (New)
+- [x] Create VirtualStreamers admin page (/admin/virtual-streamers)
+- [x] Add 6 personality presets (Friendly, Gamer, Chill, Educational, Comedian, Custom)
+- [x] Create/edit/delete virtual streamers
+- [x] Go Live/Stop controls with status indicators
+- [x] Chat AI settings (enable/disable, response delay)
+- [x] TTS settings for virtual streamers
+- [x] Lip-sync configuration
+- [x] AI model settings (temperature, response length)
+- [x] Category selection (Just Chatting, Gaming, Music, IRL, Creative, Education)
+- [x] Stats dashboard (total streamers, live count, viewers, personalities)
+
+
+## Coins Purchase Page (New)
+- [x] Create CoinsPage (/coins) with 6 coin packages
+- [x] Stripe Checkout integration for coin purchases
+- [x] Success/cancel redirect handling
+- [x] Feature explanation section
+
+
 ## TTS Highlighted Messages (New User Request)
-- [ ] Add highlighted_messages table to database
-- [ ] Add payment integration for highlights (50+ coins)
-- [ ] Implement TTS queue system
-- [ ] Add Czech voice selection for streamers (multiple voices)
-- [ ] Create TTS playback with Web Speech API or Google TTS
-- [ ] Add visual highlight styling in chat
-- [ ] Implement volume control for TTS
+- [x] Add TTS highlighted message UI in Chat component
+- [x] Add payment integration for highlights (50+ coins)
+- [x] Implement TTS queue system with Web Speech API
+- [x] Add Czech voice selection (multiple voices)
+- [x] Create TTS playback with speechSynthesis API
+- [x] Add visual highlight styling in chat (golden glow effect)
+- [x] Implement volume control for TTS
 - [ ] Add highlight duration settings
 - [ ] Create streamer dashboard for TTS settings
 
@@ -371,3 +391,20 @@
 - [ ] Implement emote autocomplete in chat (:emotename:)
 - [ ] Add emote preview on hover
 - [ ] Create emote management dashboard for streamers
+
+
+## Phase: Custom Animated Emotes, TTS, AI Virtual Streamers
+- [ ] Replace emoji-picker-react with custom emote picker (Twitch-style)
+- [ ] Create EmotePicker component with categories (Global, Streamer, Sub-only)
+- [ ] Add animated emote support (CSS animations for bounce, shake, spin)
+- [ ] Implement emote rendering in chat messages (:emoteName:)
+- [ ] Add AI emote generator endpoint using image generation API
+- [ ] Create emote management UI for streamers
+- [ ] Build TTS Highlighted Messages modal (50+ coins)
+- [ ] Add Czech voice selection for streamers (Web Speech API)
+- [ ] Implement TTS queue and playback system
+- [ ] Create visual highlight styling for paid messages
+- [ ] Build AI Virtual Streamers admin panel
+- [ ] Add virtual stream creation form (name, video, personality)
+- [ ] Implement AI chat responder using LLM
+- [ ] Add looping video stream management

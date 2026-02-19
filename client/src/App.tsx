@@ -12,6 +12,8 @@ import Profile from "./pages/Profile";
 import Messages from "./pages/Messages";
 import ForYouFeed from "./pages/ForYouFeed";
 import Community from "./pages/Community";
+import CoinsPage from "./pages/CoinsPage";
+import VirtualStreamers from "./pages/VirtualStreamers";
 
 function Router() {
   return (
@@ -24,6 +26,8 @@ function Router() {
       <Route path={"/messages"} component={Messages} />
       <Route path={"/feed"} component={ForYouFeed} />
       <Route path={"/community"} component={Community} />
+      <Route path={"/coins"} component={CoinsPage} />
+      <Route path={"/admin/virtual-streamers"} component={VirtualStreamers} />
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
     </Switch>
