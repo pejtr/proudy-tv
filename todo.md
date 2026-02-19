@@ -238,3 +238,72 @@
 - [x] Add community tRPC routers
 - [x] Add community database functions
 - [x] Add /community route to App.tsx
+
+
+## Monetization System (New User Request)
+- [x] Set up Stripe integration with webdev_add_feature
+- [x] Create Proudy Coins wallet system (1 coin = 1 Kč)
+- [x] Add coins balance to user profile
+- [x] Create coin purchase packages (100, 500, 1000, 5000, 10000 coins)
+- [x] Database schema for subscriptions (88 coins/month)
+- [ ] Create subscription management UI
+- [x] Database schema for 12 custom donation tiers (100-10000 coins)
+- [ ] Create donation tier configuration for streamers
+- [ ] Add video/audio upload for each donation tier (12 slots)
+- [ ] Implement real-time donation alerts on stream
+- [ ] Create transaction history page
+- [x] Add revenue split calculation (85/15) in products.ts
+- [ ] Create payout management for streamers
+- [ ] Add donation leaderboard
+
+
+## Watch Points System (New User Request)
+- [x] Add watch_points balance to users table
+- [x] Create watch_sessions table for tracking watch time
+- [x] Create custom_rewards table for streamer-defined rewards
+- [x] Add reward_redemptions table for tracking claims
+- [x] Create watch_streaks table for consecutive days tracking
+- [ ] Implement point accumulation (5 points/min base, 15 points/min with sub)
+- [ ] Build watch time tracker with real-time point updates
+- [ ] Create rewards management UI for streamers
+- [ ] Add rewards redemption UI for viewers
+- [ ] Implement streak system (daily/weekly bonuses)
+- [ ] Create viewer leaderboard per streamer
+- [ ] Add point multiplier logic for subscribers
+
+
+## Interactive Chat Polls (New User Request)
+- [x] Create chat_polls table (question, options, duration, sticky)
+- [x] Create poll_votes table (one vote per user)
+- [ ] Add poll creation UI for streamer/moderators
+- [ ] Implement sticky poll display in chat (pinned at top)
+- [ ] Add real-time voting with live results
+- [ ] Create visual progress bars for poll options
+- [ ] Add auto-close after time limit
+- [ ] Implement poll results announcement
+- [ ] Add poll history/archive
+
+
+## Custom Emotes System with AI Generator (New User Request)
+- [x] Create custom_emotes table (streamer-specific emotes)
+- [ ] Add AI emote generator using Manus image generation API
+- [ ] Create emote management UI for streamers
+- [ ] Implement emote upload (manual + AI generated)
+- [x] Add unlock tiers (free vs subscriber-only emotes) in schema
+- [ ] Build emote picker component for chat
+- [ ] Implement emote parsing in chat messages (:emoteName:)
+- [ ] Create emote preview/gallery page per streamer
+- [ ] Add emote packs/collections
+- [ ] Implement emote usage statistics
+
+
+## Clip Creation System (New User Request)
+- [ ] Create clips table (streamId, creatorId, title, startTime, endTime, videoUrl)
+- [ ] Add clip_views and clip_likes tables
+- [ ] Build clip creation UI with time selector (5-60 seconds)
+- [ ] Implement video trimming/extraction
+- [ ] Create clip player page with share URL
+- [ ] Add clip gallery per streamer
+- [ ] Build top clips/trending page
+- [ ] Add clip embed support
+- [ ] Implement clip moderation tools

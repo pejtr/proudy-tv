@@ -56,8 +56,11 @@ export default function VideoPlayer({
     setIsLoading(true);
     setError(null);
 
-    // Check if HLS is supported
-    if (Hls.isSupported()) {
+    // Check if source is HLS (.m3u8) or direct video (.mp4)
+    const isHLS = src.includes('.m3u8');
+    
+    if (isHLS && Hls.isSupported()) {
+      // HLS streaming
       const hls = new Hls({
         enableWorker: true,
         lowLatencyMode: true,
@@ -103,6 +106,24 @@ export default function VideoPlayer({
         hls.destroy();
       };
     } 
+    // Direct MP4 video (for loop playback)
+    else if (!isHLS) {
+      video.src = src;
+      video.loop = true; // Enable looping for MP4
+      video.addEventListener('loadedmetadata', () => {
+        setIsLoading(false);
+        if (autoPlay) {
+          video.play().catch(err => {
+            console.error('Autoplay failed:', err);
+            setIsPlaying(false);
+          });
+        }
+      });
+      video.addEventListener('error', () => {
+        setError('Failed to load video');
+        setIsLoading(false);
+      });
+    }
     // Fallback for browsers with native HLS support (Safari)
     else if (video.canPlayType('application/vnd.apple.mpegurl')) {
       video.src = src;
@@ -116,7 +137,7 @@ export default function VideoPlayer({
         }
       });
     } else {
-      setError('HLS is not supported in this browser');
+      setError('Video format is not supported in this browser');
       setIsLoading(false);
     }
   }, [src, autoPlay]);
@@ -155,9 +176,26 @@ export default function VideoPlayer({
     if (!container) return;
 
     if (!document.fullscreenElement) {
-      container.requestFullscreen();
+      // Try different fullscreen APIs for cross-browser support
+      if (container.requestFullscreen) {
+        container.requestFullscreen();
+      } else if ((container as any).webkitRequestFullscreen) {
+        (container as any).webkitRequestFullscreen(); // Safari
+      } else if ((container as any).mozRequestFullScreen) {
+        (container as any).mozRequestFullScreen(); // Firefox
+      } else if ((container as any).msRequestFullscreen) {
+        (container as any).msRequestFullscreen(); // IE/Edge
+      }
     } else {
-      document.exitFullscreen();
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      } else if ((document as any).webkitExitFullscreen) {
+        (document as any).webkitExitFullscreen();
+      } else if ((document as any).mozCancelFullScreen) {
+        (document as any).mozCancelFullScreen();
+      } else if ((document as any).msExitFullscreen) {
+        (document as any).msExitFullscreen();
+      }
     }
   };
 

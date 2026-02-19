@@ -68,6 +68,12 @@ export default function Home() {
               <div className="text-sm text-muted-foreground tracking-[0.3em] uppercase">
                 Česká Streamovací Platforma
               </div>
+              
+              {/* AI Powered Badge */}
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/30 mt-4">
+                <Sparkles className="w-4 h-4 text-purple-400" />
+                <span className="text-sm font-semibold gradient-text-animated">AI Powered</span>
+              </div>
               </div>
             </div>
 

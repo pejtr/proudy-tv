@@ -14,6 +14,10 @@ export const users = mysqlTable("users", {
   avatarUrl: text("avatar_url"),
   bio: text("bio"),
   socialLinks: text("social_links"), // JSON: { twitter, instagram, youtube, tiktok, discord }
+  // Monetization
+  coinsBalance: int("coins_balance").default(0).notNull(),
+  watchPoints: int("watch_points").default(0).notNull(),
+  stripeCustomerId: varchar("stripe_customer_id", { length: 255 }),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
   lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),
@@ -344,3 +348,235 @@ export const postLikes = mysqlTable("post_likes", {
 }));
 
 export type InsertPostLike = typeof postLikes.$inferInsert;
+
+
+/**
+ * Coin transactions - tracks all coin purchases and spending
+ */
+export const coinTransactions = mysqlTable("coin_transactions", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("user_id").notNull(),
+  amount: int("amount").notNull(), // positive for purchase, negative for spending
+  type: mysqlEnum("type", ["purchase", "donation", "subscription", "refund"]).notNull(),
+  description: text("description"),
+  stripePaymentIntentId: varchar("stripe_payment_intent_id", { length: 255 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  userIdx: index("user_idx").on(table.userId),
+  typeIdx: index("type_idx").on(table.type),
+}));
+
+export type InsertCoinTransaction = typeof coinTransactions.$inferInsert;
+
+/**
+ * Subscriptions - tracks active subscriptions to streamers
+ */
+export const subscriptions = mysqlTable("subscriptions", {
+  id: int("id").autoincrement().primaryKey(),
+  subscriberId: int("subscriber_id").notNull(),
+  streamerId: int("streamer_id").notNull(),
+  stripeSubscriptionId: varchar("stripe_subscription_id", { length: 255 }),
+  status: mysqlEnum("status", ["active", "cancelled", "expired"]).default("active").notNull(),
+  startedAt: timestamp("started_at").defaultNow().notNull(),
+  expiresAt: timestamp("expires_at").notNull(),
+  cancelledAt: timestamp("cancelled_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  subscriberIdx: index("subscriber_idx").on(table.subscriberId),
+  streamerIdx: index("streamer_idx").on(table.streamerId),
+  statusIdx: index("status_idx").on(table.status),
+}));
+
+export type InsertSubscription = typeof subscriptions.$inferInsert;
+
+/**
+ * Donation tiers - custom donation amounts with video/audio alerts
+ */
+export const donationTiers = mysqlTable("donation_tiers", {
+  id: int("id").autoincrement().primaryKey(),
+  streamerId: int("streamer_id").notNull(),
+  amount: int("amount").notNull(), // in coins
+  slotNumber: int("slot_number").notNull(), // 1-12
+  videoUrl: text("video_url"), // S3 URL for alert video
+  audioUrl: text("audio_url"), // S3 URL for alert sound
+  isEnabled: boolean("is_enabled").default(true).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  streamerIdx: index("streamer_idx").on(table.streamerId),
+  uniqueSlot: index("unique_slot").on(table.streamerId, table.slotNumber),
+}));
+
+export type InsertDonationTier = typeof donationTiers.$inferInsert;
+
+/**
+ * Donations - tracks all donations made to streamers
+ */
+export const donations = mysqlTable("donations", {
+  id: int("id").autoincrement().primaryKey(),
+  donorId: int("donor_id").notNull(),
+  streamerId: int("streamer_id").notNull(),
+  streamId: int("stream_id"), // null if offline donation
+  amount: int("amount").notNull(), // in coins
+  message: text("message"),
+  tierSlot: int("tier_slot"), // which donation tier was used (1-12)
+  isAnonymous: boolean("is_anonymous").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  donorIdx: index("donor_idx").on(table.donorId),
+  streamerIdx: index("streamer_idx").on(table.streamerId),
+  streamIdx: index("stream_idx").on(table.streamId),
+}));
+
+export type InsertDonation = typeof donations.$inferInsert;
+
+
+/**
+ * Watch sessions - tracks viewer watch time for point accumulation
+ */
+export const watchSessions = mysqlTable("watch_sessions", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("user_id").notNull(),
+  streamerId: int("streamer_id").notNull(),
+  streamId: int("stream_id"),
+  startedAt: timestamp("started_at").defaultNow().notNull(),
+  endedAt: timestamp("ended_at"),
+  durationMinutes: int("duration_minutes").default(0).notNull(),
+  pointsEarned: int("points_earned").default(0).notNull(),
+  hadSubscription: boolean("had_subscription").default(false).notNull(), // 3x multiplier
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  userIdx: index("user_idx").on(table.userId),
+  streamerIdx: index("streamer_idx").on(table.streamerId),
+  streamIdx: index("stream_idx").on(table.streamId),
+}));
+
+export type InsertWatchSession = typeof watchSessions.$inferInsert;
+
+/**
+ * Custom rewards - streamer-defined rewards that viewers can redeem with points
+ */
+export const customRewards = mysqlTable("custom_rewards", {
+  id: int("id").autoincrement().primaryKey(),
+  streamerId: int("streamer_id").notNull(),
+  title: varchar("title", { length: 100 }).notNull(),
+  description: text("description"),
+  cost: int("cost").notNull(), // points required
+  iconUrl: text("icon_url"),
+  backgroundColor: varchar("background_color", { length: 7 }).default("#9146FF"), // hex color
+  isEnabled: boolean("is_enabled").default(true).notNull(),
+  requiresInput: boolean("requires_input").default(false).notNull(), // e.g., "request a song"
+  cooldownMinutes: int("cooldown_minutes").default(0).notNull(),
+  maxRedemptionsPerStream: int("max_redemptions_per_stream"),
+  maxRedemptionsPerUser: int("max_redemptions_per_user"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  streamerIdx: index("streamer_idx").on(table.streamerId),
+}));
+
+export type InsertCustomReward = typeof customRewards.$inferInsert;
+
+/**
+ * Reward redemptions - tracks when viewers redeem rewards
+ */
+export const rewardRedemptions = mysqlTable("reward_redemptions", {
+  id: int("id").autoincrement().primaryKey(),
+  rewardId: int("reward_id").notNull(),
+  userId: int("user_id").notNull(),
+  streamerId: int("streamer_id").notNull(),
+  streamId: int("stream_id"),
+  userInput: text("user_input"), // if reward requires input
+  status: mysqlEnum("status", ["pending", "fulfilled", "cancelled"]).default("pending").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  fulfilledAt: timestamp("fulfilled_at"),
+}, (table) => ({
+  rewardIdx: index("reward_idx").on(table.rewardId),
+  userIdx: index("user_idx").on(table.userId),
+  streamerIdx: index("streamer_idx").on(table.streamerId),
+  statusIdx: index("status_idx").on(table.status),
+}));
+
+export type InsertRewardRedemption = typeof rewardRedemptions.$inferInsert;
+
+/**
+ * Watch streaks - tracks consecutive days watching a streamer
+ */
+export const watchStreaks = mysqlTable("watch_streaks", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("user_id").notNull(),
+  streamerId: int("streamer_id").notNull(),
+  currentStreak: int("current_streak").default(0).notNull(),
+  longestStreak: int("longest_streak").default(0).notNull(),
+  lastWatchDate: timestamp("last_watch_date"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  userIdx: index("user_idx").on(table.userId),
+  streamerIdx: index("streamer_idx").on(table.streamerId),
+  uniqueStreak: index("unique_streak").on(table.userId, table.streamerId),
+}));
+
+export type InsertWatchStreak = typeof watchStreaks.$inferInsert;
+
+
+/**
+ * Chat polls - interactive polls created by streamers/moderators
+ */
+export const chatPolls = mysqlTable("chat_polls", {
+  id: int("id").autoincrement().primaryKey(),
+  streamId: int("stream_id").notNull(),
+  creatorId: int("creator_id").notNull(),
+  question: varchar("question", { length: 255 }).notNull(),
+  options: text("options").notNull(), // JSON array of options
+  durationMinutes: int("duration_minutes").default(5).notNull(),
+  isActive: boolean("is_active").default(true).notNull(),
+  totalVotes: int("total_votes").default(0).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  expiresAt: timestamp("expires_at").notNull(),
+}, (table) => ({
+  streamIdx: index("stream_idx").on(table.streamId),
+  creatorIdx: index("creator_idx").on(table.creatorId),
+  activeIdx: index("active_idx").on(table.isActive),
+}));
+
+export type InsertChatPoll = typeof chatPolls.$inferInsert;
+
+/**
+ * Poll votes - tracks user votes on polls (one vote per user per poll)
+ */
+export const pollVotes = mysqlTable("poll_votes", {
+  id: int("id").autoincrement().primaryKey(),
+  pollId: int("poll_id").notNull(),
+  userId: int("user_id").notNull(),
+  optionIndex: int("option_index").notNull(), // 0-based index into options array
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  pollIdx: index("poll_idx").on(table.pollId),
+  userIdx: index("user_idx").on(table.userId),
+  uniqueVote: index("unique_vote").on(table.pollId, table.userId),
+}));
+
+export type InsertPollVote = typeof pollVotes.$inferInsert;
+
+
+/**
+ * Custom emotes - streamer-specific emotes for chat
+ */
+export const customEmotes = mysqlTable("custom_emotes", {
+  id: int("id").autoincrement().primaryKey(),
+  streamerId: int("streamer_id").notNull(),
+  name: varchar("name", { length: 50 }).notNull(), // e.g., "happycat", "rage"
+  imageUrl: text("image_url").notNull(), // S3 URL
+  tier: mysqlEnum("tier", ["free", "subscriber"]).default("free").notNull(),
+  usageCount: int("usage_count").default(0).notNull(),
+  isEnabled: boolean("is_enabled").default(true).notNull(),
+  generatedByAI: boolean("generated_by_ai").default(false).notNull(),
+  aiPrompt: text("ai_prompt"), // Original AI prompt if generated
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  streamerIdx: index("streamer_idx").on(table.streamerId),
+  uniqueName: index("unique_name").on(table.streamerId, table.name),
+}));
+
+export type InsertCustomEmote = typeof customEmotes.$inferInsert;
