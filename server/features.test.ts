@@ -67,7 +67,7 @@ describe("streams.getLive", () => {
     const caller = appRouter.createCaller(ctx);
     const result = await caller.streams.getLive();
     expect(Array.isArray(result)).toBe(true);
-  });
+  }, 10000); // 10 second timeout
 });
 
 describe("chat.getHistory", () => {

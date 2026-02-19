@@ -36,6 +36,48 @@ export const appRouter = router({
       ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });
       return { success: true } as const;
     }),
+
+    // Send verification email
+    sendVerificationEmail: protectedProcedure.mutation(async ({ ctx }) => {
+      if (!ctx.user.email) {
+        throw new TRPCError({ code: 'BAD_REQUEST', message: 'No email address on file' });
+      }
+
+      if (ctx.user.emailVerified) {
+        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Email already verified' });
+      }
+
+      // Generate verification token
+      const token = await db.generateVerificationToken(ctx.user.id);
+
+      // Get origin from request
+      const origin = ctx.req.headers.origin || `https://${ctx.req.headers.host}`;
+      const verificationUrl = `${origin}/verify-email?token=${token}`;
+
+      // Send email via Manus notification (owner notification as fallback)
+      await notifyOwner({
+        title: `Email Verification for ${ctx.user.name}`,
+        content: `User ${ctx.user.email} requested email verification.\n\nVerification link: ${verificationUrl}\n\nToken expires in 24 hours.`,
+      });
+
+      return { success: true, message: 'Verification email sent' };
+    }),
+
+    // Verify email with token
+    verifyEmail: publicProcedure
+      .input(z.object({ token: z.string() }))
+      .mutation(async ({ input }) => {
+        const success = await db.verifyEmailToken(input.token);
+
+        if (!success) {
+          throw new TRPCError({ 
+            code: 'BAD_REQUEST', 
+            message: 'Invalid or expired verification token' 
+          });
+        }
+
+        return { success: true, message: 'Email verified successfully!' };
+      }),
   }),
 
   streams: router({

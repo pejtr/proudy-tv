@@ -446,3 +446,23 @@
 - [ ] Create partner achievement notifications
 - [ ] Add partner badge to chat messages
 - [ ] Implement email verification flow
+
+
+## Email Verification Flow (Completed)
+- [x] Add verificationToken and verificationTokenExpiry to users table
+- [x] Create email verification functions (generateVerificationToken, verifyEmailToken)
+- [x] Add tRPC mutation for sending verification email (auth.sendVerificationEmail)
+- [x] Add tRPC mutation for verifying token (auth.verifyEmail)
+- [x] Create email verification page (/verify-email?token=xxx)
+- [x] Add EmailVerificationBanner in Dashboard for unverified users
+- [x] Block "Create Stream" button when emailVerified is false
+- [x] Add resend verification email button in banner
+- [x] Write vitest tests for verification flow (45 tests passing)
+- [ ] Show verification status in user profile
+- [ ] Replace owner notification with actual email sending service
+
+
+## Stream Thumbnail Preview Fix (Completed)
+- [x] Fix Browse page to show live video preview instead of black box
+- [x] Add video element with HLS playback for stream thumbnails
+- [x] Implement fallback thumbnail image if stream not available

@@ -11,6 +11,8 @@ export const users = mysqlTable("users", {
   loginMethod: varchar("loginMethod", { length: 64 }),
   role: mysqlEnum("role", ["viewer", "streamer", "admin"]).default("viewer").notNull(),
   emailVerified: boolean("email_verified").default(false).notNull(),
+  verificationToken: varchar("verification_token", { length: 64 }),
+  verificationTokenExpiry: timestamp("verification_token_expiry"),
   // Profile fields
   avatarUrl: text("avatar_url"),
   bio: text("bio"),

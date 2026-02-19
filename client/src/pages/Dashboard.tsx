@@ -14,6 +14,7 @@ import { Radio, Settings, Eye, Copy, Check } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import PartnerProgress from "@/components/PartnerProgress";
+import EmailVerificationBanner from "@/components/EmailVerificationBanner";
 
 export default function Dashboard() {
   const { user, isAuthenticated } = useAuth();
@@ -114,6 +115,11 @@ export default function Dashboard() {
 
           {/* Streams Tab */}
           <TabsContent value="streams" className="space-y-6">
+            {/* Email Verification Banner */}
+            {!user?.emailVerified && (
+              <EmailVerificationBanner email={user?.email || null} />
+            )}
+
             {/* Create New Stream */}
             <Card className="p-6">
               <h2 className="text-xl font-bold mb-4">Create New Stream</h2>
@@ -142,11 +148,12 @@ export default function Dashboard() {
 
                 <Button 
                   type="submit" 
-                  disabled={createStreamMutation.isPending}
+                  disabled={createStreamMutation.isPending || !user?.emailVerified}
                   className="rainbow-gradient text-black font-bold"
+                  title={!user?.emailVerified ? "Ověřte email pro vytvoření streamu" : ""}
                 >
                   <Radio className="mr-2 h-4 w-4" />
-                  Create Stream
+                  {!user?.emailVerified ? "Ověřte email pro streamování" : "Create Stream"}
                 </Button>
               </form>
             </Card>

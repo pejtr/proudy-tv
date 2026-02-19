@@ -77,7 +77,16 @@ export default function Browse() {
               <Link key={stream.id} href={`/stream/${stream.id}`}>
                 <Card className="rainbow-border hover:scale-105 transition-transform cursor-pointer overflow-hidden">
                   <div className="relative aspect-video bg-muted">
-                    {stream.thumbnailUrl ? (
+                    {stream.hlsUrl ? (
+                      <video
+                        src={stream.hlsUrl}
+                        className="w-full h-full object-cover"
+                        autoPlay
+                        muted
+                        loop
+                        playsInline
+                      />
+                    ) : stream.thumbnailUrl ? (
                       <img
                         src={stream.thumbnailUrl}
                         alt={stream.title}

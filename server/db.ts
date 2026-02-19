@@ -1357,3 +1357,73 @@ export async function resetMonthlyStats() {
     await updateActiveSubscribers(user.id);
   }
 }
+
+
+/**
+ * Email Verification Functions
+ */
+export async function generateVerificationToken(userId: number): Promise<string> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  // Generate random token
+  const token = Array.from({ length: 32 }, () => 
+    Math.random().toString(36).charAt(2)
+  ).join('');
+  
+  // Set expiry to 24 hours from now
+  const expiry = new Date(Date.now() + 24 * 60 * 60 * 1000);
+  
+  await db
+    .update(users)
+    .set({ 
+      verificationToken: token,
+      verificationTokenExpiry: expiry,
+    })
+    .where(eq(users.id, userId));
+  
+  return token;
+}
+
+export async function verifyEmailToken(token: string): Promise<boolean> {
+  const db = await getDb();
+  if (!db) return false;
+  
+  const [user] = await db
+    .select()
+    .from(users)
+    .where(eq(users.verificationToken, token))
+    .limit(1);
+  
+  if (!user) return false;
+  
+  // Check if token is expired
+  if (user.verificationTokenExpiry && user.verificationTokenExpiry < new Date()) {
+    return false;
+  }
+  
+  // Mark email as verified and clear token
+  await db
+    .update(users)
+    .set({ 
+      emailVerified: true,
+      verificationToken: null,
+      verificationTokenExpiry: null,
+    })
+    .where(eq(users.id, user.id));
+  
+  return true;
+}
+
+export async function getUserByEmail(email: string) {
+  const db = await getDb();
+  if (!db) return null;
+  
+  const [user] = await db
+    .select()
+    .from(users)
+    .where(eq(users.email, email))
+    .limit(1);
+  
+  return user || null;
+}
