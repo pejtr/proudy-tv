@@ -6,10 +6,17 @@ import { trpc } from "@/lib/trpc";
 import { Link } from "wouter";
 import { Eye, Radio } from "lucide-react";
 import VerifiedBadge from "@/components/VerifiedBadge";
+import { useState } from "react";
 
 export default function Browse() {
   const { user, isAuthenticated } = useAuth();
   const { data: liveStreams, isLoading } = trpc.streams.getLive.useQuery();
+  const [selectedCategory, setSelectedCategory] = useState<"All" | "Chill & Talk" | "Gaming" | "Music" | "ASMR">("All");
+
+  // Filter streams by category
+  const filteredStreams = liveStreams?.filter(stream => 
+    selectedCategory === "All" || stream.category === selectedCategory
+  ) || [];
 
   return (
     <div className="min-h-screen bg-black">
@@ -60,6 +67,45 @@ export default function Browse() {
           </p>
         </div>
 
+        {/* Category Filter */}
+        <div className="flex flex-wrap gap-2 mb-6">
+          <Button
+            variant={selectedCategory === "All" ? "default" : "outline"}
+            onClick={() => setSelectedCategory("All")}
+            className={selectedCategory === "All" ? "rainbow-gradient text-black font-bold" : ""}
+          >
+            All
+          </Button>
+          <Button
+            variant={selectedCategory === "Chill & Talk" ? "default" : "outline"}
+            onClick={() => setSelectedCategory("Chill & Talk")}
+            className={selectedCategory === "Chill & Talk" ? "rainbow-gradient text-black font-bold" : ""}
+          >
+            💬 Chill & Talk
+          </Button>
+          <Button
+            variant={selectedCategory === "Gaming" ? "default" : "outline"}
+            onClick={() => setSelectedCategory("Gaming")}
+            className={selectedCategory === "Gaming" ? "rainbow-gradient text-black font-bold" : ""}
+          >
+            🎮 Gaming
+          </Button>
+          <Button
+            variant={selectedCategory === "Music" ? "default" : "outline"}
+            onClick={() => setSelectedCategory("Music")}
+            className={selectedCategory === "Music" ? "rainbow-gradient text-black font-bold" : ""}
+          >
+            🎵 Music
+          </Button>
+          <Button
+            variant={selectedCategory === "ASMR" ? "default" : "outline"}
+            onClick={() => setSelectedCategory("ASMR")}
+            className={selectedCategory === "ASMR" ? "rainbow-gradient text-black font-bold" : ""}
+          >
+            🎧 ASMR
+          </Button>
+        </div>
+
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {[...Array(8)].map((_, i) => (
@@ -72,9 +118,9 @@ export default function Browse() {
               </Card>
             ))}
           </div>
-        ) : liveStreams && liveStreams.length > 0 ? (
+        ) : filteredStreams && filteredStreams.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {liveStreams.map((stream) => (
+            {filteredStreams.map((stream) => (
               <Link key={stream.id} href={`/stream/${stream.id}`}>
                 <Card className="rainbow-border hover:scale-105 transition-transform cursor-pointer overflow-hidden">
                   <div className="relative aspect-video bg-muted">
@@ -118,6 +164,15 @@ export default function Browse() {
                       <VerifiedBadge verified={stream.emailVerified || false} size="sm" showTooltip={false} />
                     </div>
                     <h3 className="font-bold text-lg mb-1 truncate">{stream.title}</h3>
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-xs px-2 py-1 rounded-full bg-primary/20 text-primary font-medium">
+                        {stream.category === "Chill & Talk" && "💬"}
+                        {stream.category === "Gaming" && "🎮"}
+                        {stream.category === "Music" && "🎵"}
+                        {stream.category === "ASMR" && "🎧"}
+                        {" "}{stream.category}
+                      </span>
+                    </div>
                     {stream.description && (
                       <p className="text-sm text-muted-foreground line-clamp-2">
                         {stream.description}

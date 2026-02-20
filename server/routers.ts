@@ -107,9 +107,10 @@ export const appRouter = router({
       .input(z.object({
         title: z.string().min(1).max(255),
         description: z.string().optional(),
+        category: z.enum(["Chill & Talk", "Gaming", "Music", "ASMR"]).default("Chill & Talk"),
       }))
       .mutation(async ({ ctx, input }) => {
-        const streamId = await db.createStream(ctx.user.id, input.title, input.description);
+        const streamId = await db.createStream(ctx.user.id, input.title, input.description, input.category);
         return { streamId };
       }),
 

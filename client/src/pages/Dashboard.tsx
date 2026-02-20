@@ -47,6 +47,7 @@ export default function Dashboard() {
 
   const [newStreamTitle, setNewStreamTitle] = useState("");
   const [newStreamDesc, setNewStreamDesc] = useState("");
+  const [newStreamCategory, setNewStreamCategory] = useState<"Chill & Talk" | "Gaming" | "Music" | "ASMR">("Chill & Talk");
 
   const handleCreateStream = (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,10 +59,12 @@ export default function Dashboard() {
     createStreamMutation.mutate({
       title: newStreamTitle,
       description: newStreamDesc || undefined,
+      category: newStreamCategory,
     });
 
     setNewStreamTitle("");
     setNewStreamDesc("");
+    setNewStreamCategory("Chill & Talk");
   };
 
   const copyStreamKey = (key: string) => {
@@ -148,6 +151,21 @@ export default function Dashboard() {
                     placeholder="Describe your stream..."
                     rows={3}
                   />
+                </div>
+
+                <div>
+                  <Label htmlFor="category">Category</Label>
+                  <Select value={newStreamCategory} onValueChange={(value: any) => setNewStreamCategory(value)}>
+                    <SelectTrigger id="category">
+                      <SelectValue placeholder="Select category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Chill & Talk">💬 Chill & Talk</SelectItem>
+                      <SelectItem value="Gaming">🎮 Gaming</SelectItem>
+                      <SelectItem value="Music">🎵 Music</SelectItem>
+                      <SelectItem value="ASMR">🎧 ASMR</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <Button 

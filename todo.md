@@ -488,3 +488,15 @@
 - [x] Update ChatMessage interface with partnerTier field
 - [x] Add verified badge to Browse page streamer cards (with streamer name)
 - [x] Write vitest tests for chat payload and badge display (60 tests passing)
+
+
+## Stream Categories (Completed)
+- [x] Add category enum to streams table (Chill & Talk, Gaming, Music, ASMR)
+- [x] Push database schema changes
+- [x] Add category selector to stream creation form in Dashboard
+- [x] Add category display to stream cards on Browse page (badge with icon + name)
+- [x] Add category filter buttons on Browse page (All, 💬 Chill & Talk, 🎮 Gaming, 🎵 Music, 🎧 ASMR)
+- [x] Update createStream function to accept category parameter
+- [x] Add category icons/badges for visual distinction
+- [x] Write vitest tests for category filtering (68 tests passing)
+- [ ] Update stream settings to allow category changes after creation

@@ -1,0 +1,1 @@
+ALTER TABLE `streams` ADD `category` enum('Chill & Talk','Gaming','Music','ASMR') DEFAULT 'Chill & Talk' NOT NULL;

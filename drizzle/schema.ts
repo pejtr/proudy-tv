@@ -50,6 +50,7 @@ export const streams = mysqlTable("streams", {
   thumbnailUrl: text("thumbnail_url"),
   hlsUrl: text("hls_url"), // HLS stream URL (for live or looped video)
   vodUrl: text("vod_url"), // S3 URL for archived stream
+  category: mysqlEnum("category", ["Chill & Talk", "Gaming", "Music", "ASMR"]).default("Chill & Talk").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
 }, (table) => ({

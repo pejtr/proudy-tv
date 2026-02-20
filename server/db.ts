@@ -113,7 +113,7 @@ export async function generateStreamKey(): Promise<string> {
   return `sk_${nanoid(32)}`;
 }
 
-export async function createStream(streamerId: number, title: string, description?: string) {
+export async function createStream(streamerId: number, title: string, description?: string, category?: "Chill & Talk" | "Gaming" | "Music" | "ASMR") {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
@@ -123,6 +123,7 @@ export async function createStream(streamerId: number, title: string, descriptio
     streamerId,
     title,
     description: description || null,
+    category: category || "Chill & Talk",
     streamKey,
     isLive: false,
   });
@@ -163,6 +164,7 @@ export async function getLiveStreams() {
       hlsUrl: streams.hlsUrl,
       isLive: streams.isLive,
       viewerCount: streams.viewerCount,
+      category: streams.category,
       startedAt: streams.startedAt,
       endedAt: streams.endedAt,
       createdAt: streams.createdAt,
