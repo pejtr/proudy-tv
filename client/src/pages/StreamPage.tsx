@@ -12,6 +12,9 @@ import GoalWidget from '@/components/GoalWidget';
 import { Eye, Send, AlertCircle } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
+import SEO from "@/components/SEO";
+import { VideoStructuredData, BreadcrumbStructuredData } from "@/components/StructuredData";
+import ShareButtons from "@/components/ShareButtons";
 
 export default function StreamPage() {
   const { id } = useParams();
@@ -93,10 +96,46 @@ export default function StreamPage() {
     );
   }
 
+  const siteUrl = typeof window !== "undefined" ? window.location.origin : "https://proudy.tv";
+  const streamUrl = `/stream/${streamId}`;
+
   return (
-    <div className="min-h-screen bg-black">
-      {/* Header */}
-      <header className="border-b border-border sticky top-0 bg-black z-50">
+    <>
+      {/* SEO Meta Tags */}
+      <SEO
+        title={`${stream.title} - ${stream.streamerName || "Unknown"} | PROUDY.TV`}
+        description={stream.description || `Watch ${stream.streamerName || "this streamer"} live on PROUDY.TV. ${stream.category} stream with ${stream.viewerCount} viewers.`}
+        url={streamUrl}
+        type="video.other"
+        video={{
+          url: stream.hlsUrl || `${siteUrl}${streamUrl}`,
+          width: 1920,
+          height: 1080,
+          type: "application/x-mpegURL",
+        }}
+      />
+
+      {/* Structured Data */}
+      <VideoStructuredData
+        name={stream.title}
+        description={stream.description || `Live stream by ${stream.streamerName || "Unknown"}`}
+        thumbnailUrl={stream.thumbnailUrl || `${siteUrl}/default-thumbnail.png`}
+        uploadDate={stream.startedAt?.toISOString() || new Date().toISOString()}
+        contentUrl={stream.hlsUrl || undefined}
+        embedUrl={`${siteUrl}${streamUrl}`}
+      />
+
+      <BreadcrumbStructuredData
+        items={[
+          { name: "Home", url: siteUrl },
+          { name: "Browse", url: `${siteUrl}/browse` },
+          { name: stream.title, url: `${siteUrl}${streamUrl}` },
+        ]}
+      />
+
+      <div className="min-h-screen bg-black">
+        {/* Header */}
+        <header className="border-b border-border sticky top-0 bg-black z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <Link href="/">
             <div className="flex items-center gap-3 cursor-pointer">
@@ -159,8 +198,17 @@ export default function StreamPage() {
             <div>
               <h1 className="text-3xl font-bold mb-2">{stream.title}</h1>
               {stream.description && (
-                <p className="text-muted-foreground">{stream.description}</p>
+                <p className="text-muted-foreground mb-4">{stream.description}</p>
               )}
+              
+              {/* Share Buttons */}
+              <div className="mb-4">
+                <ShareButtons
+                  url={streamUrl}
+                  title={stream.title}
+                  description={stream.description || `Watch ${stream.streamerName || "this streamer"} live on PROUDY.TV`}
+                />
+              </div>
               
               <div className="flex items-center gap-4 mt-4 text-sm text-muted-foreground">
                 <div className="flex items-center gap-1">
@@ -181,5 +229,6 @@ export default function StreamPage() {
         </div>
       </div>
     </div>
+    </>
   );
 }

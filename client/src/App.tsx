@@ -1,9 +1,11 @@
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
-import { Route, Switch } from "wouter";
+import { Route, Switch, useLocation } from "wouter";
+import { useEffect } from "react";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
+import { initGA, trackPageView } from "./lib/analytics";
 import Home from "./pages/Home";
 import Browse from "./pages/Browse";
 import StreamPage from "./pages/StreamPage";
@@ -16,8 +18,22 @@ import CoinsPage from "./pages/CoinsPage";
 import VirtualStreamers from "./pages/VirtualStreamers";
 import EmoteManagement from "./pages/EmoteManagement";
 import VerifyEmail from "./pages/VerifyEmail";
+import TopStreamers from "./pages/TopStreamers";
+import CategoryPage from "./pages/CategoryPage";
 
 function Router() {
+  const [location] = useLocation();
+
+  useEffect(() => {
+    // Initialize GA4 on first load
+    initGA();
+  }, []);
+
+  useEffect(() => {
+    // Track page views on route changes
+    trackPageView(location);
+  }, [location]);
+
   return (
     <Switch>
       <Route path={"/"} component={Home} />
@@ -32,6 +48,8 @@ function Router() {
       <Route path={"/admin/virtual-streamers"} component={VirtualStreamers} />
       <Route path={"/dashboard/emotes"} component={EmoteManagement} />
       <Route path={"/verify-email"} component={VerifyEmail} />
+      <Route path={"/top-streamers"} component={TopStreamers} />
+      <Route path={"/category/:category"} component={CategoryPage} />
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
     </Switch>

@@ -500,3 +500,23 @@
 - [x] Add category icons/badges for visual distinction
 - [x] Write vitest tests for category filtering (68 tests passing)
 - [ ] Update stream settings to allow category changes after creation
+
+
+## SEO & Visibility Features (Completed)
+- [x] Add SEO meta tags component (title, description, keywords)
+- [x] Add Open Graph tags for social media sharing (og:title, og:image, og:description, og:video)
+- [x] Add Twitter Card meta tags (summary_large_image, player)
+- [x] Implement JSON-LD structured data for streams (VideoObject schema)
+- [x] Add structured data for streamers (Person/Organization schema)
+- [x] Add BreadcrumbList structured data for navigation
+- [x] Create sitemap.xml endpoint (/sitemap.xml) with static + dynamic pages
+- [x] Create robots.txt endpoint (/robots.txt) with crawl rules
+- [x] Build Top Streamers public landing page (/top-streamers)
+- [x] Create category landing pages (/category/gaming, /category/music, /category/asmr, /category/chill-talk)
+- [x] Add social share buttons (Twitter, Facebook, Discord, Copy Link) to stream pages
+- [x] Integrate Google Analytics 4 (GA4) tracking with page views and custom events
+- [x] Add canonical URLs to prevent duplicate content
+- [x] Implement breadcrumb navigation for SEO
+- [x] Write vitest tests for SEO meta tags and structured data (81 tests passing)
+- [ ] Generate dynamic Open Graph images for stream previews (requires image generation service)
+- [ ] Configure GA4 Measurement ID in environment variables

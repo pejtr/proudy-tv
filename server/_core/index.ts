@@ -9,6 +9,7 @@ import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
 import { setupChatServer } from "../chat";
 import uploadAvatarRouter from "../uploadAvatar";
+import seoRouter from "../seo";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -43,6 +44,10 @@ async function startServer() {
   
   // Avatar upload endpoint
   app.use("/api", uploadAvatarRouter);
+  
+  // SEO endpoints (sitemap.xml, robots.txt)
+  app.use("/", seoRouter);
+  
   // tRPC API
   app.use(
     "/api/trpc",

@@ -144,7 +144,30 @@ export async function getStreamById(id: number) {
   const db = await getDb();
   if (!db) return undefined;
 
-  const result = await db.select().from(streams).where(eq(streams.id, id)).limit(1);
+  const result = await db
+    .select({
+      id: streams.id,
+      streamerId: streams.streamerId,
+      title: streams.title,
+      description: streams.description,
+      streamKey: streams.streamKey,
+      isLive: streams.isLive,
+      startedAt: streams.startedAt,
+      endedAt: streams.endedAt,
+      viewerCount: streams.viewerCount,
+      category: streams.category,
+      thumbnailUrl: streams.thumbnailUrl,
+      hlsUrl: streams.hlsUrl,
+      vodUrl: streams.vodUrl,
+      createdAt: streams.createdAt,
+      updatedAt: streams.updatedAt,
+      streamerName: users.name,
+    })
+    .from(streams)
+    .leftJoin(users, eq(streams.streamerId, users.id))
+    .where(eq(streams.id, id))
+    .limit(1);
+  
   return result.length > 0 ? result[0] : undefined;
 }
 
@@ -207,13 +230,7 @@ export async function updateViewerCount(streamId: number, count: number) {
   const stream = await getStreamById(streamId);
   if (!stream) return;
 
-  const updates: any = { viewerCount: count };
-  
-  if (count > stream.peakViewerCount) {
-    updates.peakViewerCount = count;
-  }
-
-  await db.update(streams).set(updates).where(eq(streams.id, streamId));
+  await db.update(streams).set({ viewerCount: count }).where(eq(streams.id, streamId));
 }
 
 // ============= CHAT OPERATIONS =============

@@ -166,7 +166,7 @@ export const appRouter = router({
         // Notify owner if stream exceeds 100 viewers
         if (input.count >= 100) {
           const stream = await db.getStreamById(input.streamId);
-          if (stream && stream.peakViewerCount < 100) {
+          if (stream && stream.viewerCount < 100) {
             await notifyOwner({
               title: 'High Viewer Count!',
               content: `Stream "${stream.title}" has ${input.count} viewers!`,
