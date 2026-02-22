@@ -105,6 +105,7 @@ export default function StreamPage() {
       <SEO
         title={`${stream.title} - ${stream.streamerName || "Unknown"} | PROUDY.TV`}
         description={stream.description || `Watch ${stream.streamerName || "this streamer"} live on PROUDY.TV. ${stream.category} stream with ${stream.viewerCount} viewers.`}
+        image={`${siteUrl}/api/og-image/${streamId}`}
         url={streamUrl}
         type="video.other"
         video={{

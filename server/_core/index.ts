@@ -10,6 +10,7 @@ import { serveStatic, setupVite } from "./vite";
 import { setupChatServer } from "../chat";
 import uploadAvatarRouter from "../uploadAvatar";
 import seoRouter from "../seo";
+import ogImageRouter from "../og-image";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -47,6 +48,9 @@ async function startServer() {
   
   // SEO endpoints (sitemap.xml, robots.txt)
   app.use("/", seoRouter);
+  
+  // OG image generation endpoint
+  app.use("/api/og-image", ogImageRouter);
   
   // tRPC API
   app.use(

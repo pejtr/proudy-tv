@@ -520,3 +520,14 @@
 - [x] Write vitest tests for SEO meta tags and structured data (81 tests passing)
 - [ ] Generate dynamic Open Graph images for stream previews (requires image generation service)
 - [ ] Configure GA4 Measurement ID in environment variables
+
+
+## Dynamic OG Image Generation (Completed)
+- [x] Install @napi-rs/canvas for server-side image generation
+- [x] Create /api/og-image/:streamId endpoint
+- [x] Generate 1200x630 OG image with stream thumbnail, title, category, viewer count
+- [x] Add PROUDY.TV branding (logo with gradient text, dark gradient background)
+- [x] Cache generated OG images in S3 storage (og-images/stream-{id}.png)
+- [x] Update StreamPage SEO component to use dynamic OG image URLs
+- [x] Add error handling and fallback for missing streams
+- [x] Write vitest tests for OG image generation (99 tests passing)
