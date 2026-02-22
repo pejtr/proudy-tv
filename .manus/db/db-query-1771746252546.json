@@ -1,0 +1,17 @@
+{
+  "query": "INSERT INTO streams (streamer_id, title, description, category, stream_key, is_live, hls_url, thumbnail_url, viewer_count, started_at)\nSELECT \n  id,\n  'Test Gaming Stream - PROUDY.TV OG Image Demo',\n  'Testing Open Graph image generation with dynamic canvas rendering',\n  'Gaming',\n  CONCAT('test-', REPLACE(UUID(), '-', '')),\n  1,\n  'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8',\n  'https://image.mux.com/x36xhzz/thumbnail.jpg',\n  42,\n  NOW()\nFROM users \nWHERE role IN ('admin', 'streamer')\nLIMIT 1;\n\nSELECT s.id, s.title, s.category, s.viewer_count, u.name as streamer_name\nFROM streams s\nJOIN users u ON s.streamer_id = u.id\nORDER BY s.id DESC LIMIT 1;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4VFjuiBDjCy66KV.94ca35695ddf --database jcQDGhUwvEDe46K6ArFhgW --execute INSERT INTO streams (streamer_id, title, description, category, stream_key, is_live, hls_url, thumbnail_url, viewer_count, started_at)\nSELECT \n  id,\n  'Test Gaming Stream - PROUDY.TV OG Image Demo',\n  'Testing Open Graph image generation with dynamic canvas rendering',\n  'Gaming',\n  CONCAT('test-', REPLACE(UUID(), '-', '')),\n  1,\n  'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8',\n  'https://image.mux.com/x36xhzz/thumbnail.jpg',\n  42,\n  NOW()\nFROM users \nWHERE role IN ('admin', 'streamer')\nLIMIT 1;\n\nSELECT s.id, s.title, s.category, s.viewer_count, u.name as streamer_name\nFROM streams s\nJOIN users u ON s.streamer_id = u.id\nORDER BY s.id DESC LIMIT 1;",
+  "rows": [
+    {
+      "id": "30001",
+      "title": "Test Gaming Stream - PROUDY.TV OG Image Demo",
+      "category": "Gaming",
+      "viewer_count": "42",
+      "streamer_name": "Justine"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\ttitle\tcategory\tviewer_count\tstreamer_name\n30001\tTest Gaming Stream - PROUDY.TV OG Image Demo\tGaming\t42\tJustine\n",
+  "stderr": "",
+  "execution_time_ms": 73
+}

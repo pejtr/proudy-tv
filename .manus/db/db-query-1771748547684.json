@@ -1,0 +1,29 @@
+{
+  "query": "SELECT s.*, u.name as streamer_name \nFROM streams s\nLEFT JOIN users u ON s.streamer_id = u.id\nWHERE s.id = 1;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4VFjuiBDjCy66KV.94ca35695ddf --database jcQDGhUwvEDe46K6ArFhgW --execute SELECT s.*, u.name as streamer_name \nFROM streams s\nLEFT JOIN users u ON s.streamer_id = u.id\nWHERE s.id = 1;",
+  "rows": [
+    {
+      "id": "1",
+      "streamer_id": "41",
+      "title": "Justine Live Stream 🎮",
+      "description": "Non-stop gaming stream! Join the fun!",
+      "stream_key": "justine-vg3wed",
+      "is_live": "1",
+      "started_at": "2026-02-19 00:17:36",
+      "ended_at": "NULL",
+      "viewer_count": "37",
+      "peak_viewer_count": "89",
+      "thumbnail_url": "https://files.manuscdn.com/user_upload_by_module/session_file/310419663032296198/xtPOmZSEpelIfxrc.mp4",
+      "vod_url": "NULL",
+      "created_at": "2026-02-19 00:17:36",
+      "updated_at": "2026-02-19 02:29:15",
+      "hls_url": "https://files.manuscdn.com/user_upload_by_module/session_file/310419663032296198/xtPOmZSEpelIfxrc.mp4",
+      "category": "Chill & Talk",
+      "streamer_name": "Justine"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tstreamer_id\ttitle\tdescription\tstream_key\tis_live\tstarted_at\tended_at\tviewer_count\tpeak_viewer_count\tthumbnail_url\tvod_url\tcreated_at\tupdated_at\thls_url\tcategory\tstreamer_name\n1\t41\tJustine Live Stream 🎮\tNon-stop gaming stream! Join the fun!\tjustine-vg3wed\t1\t2026-02-19 00:17:36\tNULL\t37\t89\thttps://files.manuscdn.com/user_upload_by_module/session_file/310419663032296198/xtPOmZSEpelIfxrc.mp4\tNULL\t2026-02-19 00:17:36\t2026-02-19 02:29:15\thttps://files.manuscdn.com/user_upload_by_module/session_file/310419663032296198/xtPOmZSEpelIfxrc.mp4\tChill & Talk\tJustine\n",
+  "stderr": "",
+  "execution_time_ms": 54
+}

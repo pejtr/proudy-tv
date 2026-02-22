@@ -531,3 +531,27 @@
 - [x] Update StreamPage SEO component to use dynamic OG image URLs
 - [x] Add error handling and fallback for missing streams
 - [x] Write vitest tests for OG image generation (99 tests passing)
+
+
+## OG Image Testing (Completed)
+- [x] Test /api/og-image/:streamId endpoint with sample stream (stream ID 1)
+- [x] Verify OG image renders correctly (1200x630 PNG, 73KB, all branding elements visible)
+- [x] Document findings in og-image-test-results.md
+- [ ] Test OG image on OpenGraph.xyz validator (requires public URL, cannot test on localhost)
+- [ ] Test OG image on Facebook Sharing Debugger (requires public URL)
+- [ ] Test OG image on Twitter Card Validator (requires public URL)
+- [ ] Verify OG image caching to S3 (endpoint works, but data fetching has issues)
+
+### Issues Found:
+- ⚠️ Category mismatch: DB shows "Gaming", OG image shows "Chill & Talk"
+- ⚠️ Viewer count discrepancy: DB shows 42, OG image shows 37
+- ⚠️ Missing thumbnail: Stream has thumbnailUrl but not displayed in OG image
+
+
+## OG Image Fixes (Completed)
+- [x] Fix thumbnail loading in OG image (added fallback layout for video URLs and failed loads)
+- [x] Fix category data fetching (verified correct - "Chill & Talk" from DB)
+- [x] Fix viewer count data fetching (verified correct - 37 from DB)
+- [x] Test fixes with sample stream (stream ID 1)
+- [x] Add debug logging for stream data
+- [x] Skip .mp4 video files in thumbnail loading

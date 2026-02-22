@@ -36,10 +36,15 @@ async function generateOGImage(options: OGImageOptions): Promise<Buffer> {
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, OG_WIDTH, OG_HEIGHT);
 
-  // Add thumbnail if available
-  if (options.thumbnailUrl) {
+  // Try to add thumbnail if available (skip if video or loading fails)
+  let thumbnailLoaded = false;
+  if (options.thumbnailUrl && !options.thumbnailUrl.endsWith('.mp4')) {
     try {
-      const thumbnail = await loadImage(options.thumbnailUrl);
+      // Fetch image as buffer first (canvas can't load JPEG from HTTP directly)
+      const response = await fetch(options.thumbnailUrl);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const imageBuffer = await response.arrayBuffer();
+      const thumbnail = await loadImage(Buffer.from(imageBuffer));
       // Draw thumbnail on left side with rounded corners
       const thumbWidth = 500;
       const thumbHeight = 400;
@@ -59,13 +64,15 @@ async function generateOGImage(options: OGImageOptions): Promise<Buffer> {
       ctx.beginPath();
       ctx.roundRect(thumbX, thumbY, thumbWidth, thumbHeight, 16);
       ctx.stroke();
+      
+      thumbnailLoaded = true;
     } catch (error) {
-      console.warn("[OG Image] Failed to load thumbnail:", error);
+      console.warn("[OG Image] Failed to load thumbnail, using fallback layout:", error);
     }
   }
 
-  // Text area on right side
-  const textX = options.thumbnailUrl ? 600 : 100;
+  // Text area (centered if no thumbnail, right side if thumbnail loaded)
+  const textX = thumbnailLoaded ? 600 : 100;
   const textWidth = OG_WIDTH - textX - 100;
 
   // PROUDY.TV logo text
@@ -192,6 +199,16 @@ router.get("/:streamId", async (req, res) => {
       return res.status(404).json({ error: "Stream not found" });
     }
 
+    // Log stream data for debugging
+    console.log(`[OG Image] Stream data:`, {
+      id: streamId,
+      title: stream.title,
+      category: stream.category,
+      viewerCount: stream.viewerCount,
+      thumbnailUrl: stream.thumbnailUrl,
+      streamerName: stream.streamerName
+    });
+
     // Generate OG image
     const imageBuffer = await generateOGImage({
       title: stream.title,
@@ -201,7 +218,7 @@ router.get("/:streamId", async (req, res) => {
       streamerName: stream.streamerName || undefined,
     });
 
-    // Upload to S3
+    // Upload to S3 (skip cache check for now to always generate fresh)
     const { url } = await storagePut(cacheKey, imageBuffer, "image/png");
 
     // Return image
