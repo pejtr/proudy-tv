@@ -83,6 +83,11 @@ export default function Home() {
               <span className="gradient-text-animated">v českém streamingu</span>
             </h1>
 
+            {/* Motto */}
+            <div className="text-3xl md:text-4xl font-bold text-foreground animate-fade-in-up mb-6" style={{ animationDelay: '0.5s' }}>
+              <span className="gradient-text-animated">Tvé proudy. Tvá komunita.</span> 💫
+            </div>
+
             <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
               Streamuj s AR filtry, voice changerem a 3D avatary. 
               Multistreaming support. Až 80/20 revenue split. Žádné limity.

@@ -572,3 +572,12 @@
 - [ ] Integrate alerts with socket.io chat system (backend implementation)
 - [ ] Connect moderation tools to backend tRPC mutations
 - [ ] Replace mock analytics data with real tRPC queries
+
+
+## Kick.com Mirror Streams (Current Task)
+- [ ] Find 4-6 live Kick.com streams across categories (Gaming, Music, ASMR, Chill & Talk)
+- [ ] Extract HLS stream URLs from Kick.com
+- [ ] Create mirror streams in database with Kick URLs
+- [ ] Add "Mirror from Kick" badge to Browse page stream cards
+- [ ] Test video playback with Kick HLS streams
+- [ ] Update homepage motto to "Tvé proudy. Tvá komunita." 💫

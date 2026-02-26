@@ -192,6 +192,7 @@ export async function getLiveStreams() {
       endedAt: streams.endedAt,
       createdAt: streams.createdAt,
       emailVerified: users.emailVerified,
+      streamKey: streams.streamKey,
     })
     .from(streams)
     .leftJoin(users, eq(streams.streamerId, users.id))

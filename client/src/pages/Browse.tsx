@@ -146,9 +146,16 @@ export default function Browse() {
                     )}
                     
                     {/* Live Badge */}
-                    <div className="absolute top-3 left-3 bg-red-600 text-white px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1 animate-pulse-live">
-                      <span className="w-2 h-2 bg-white rounded-full"></span>
-                      LIVE
+                    <div className="absolute top-3 left-3 flex flex-col gap-2">
+                      <div className="bg-red-600 text-white px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1 animate-pulse-live">
+                        <span className="w-2 h-2 bg-white rounded-full"></span>
+                        LIVE
+                      </div>
+                      {stream.streamKey?.startsWith('demo-') && (
+                        <div className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-3 py-1 rounded-full text-xs font-bold">
+                          🎬 Demo Stream
+                        </div>
+                      )}
                     </div>
 
                     {/* Viewer Count */}
