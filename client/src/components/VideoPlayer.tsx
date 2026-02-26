@@ -186,7 +186,7 @@ export default function VideoPlayer({
     setIsMuted(newVolume === 0);
   };
 
-  const toggleFullscreen = () => {
+  const toggleFullscreen = async () => {
     const container = containerRef.current;
     const video = videoRef.current;
     if (!container) return;
@@ -194,29 +194,45 @@ export default function VideoPlayer({
     try {
       const fsElement = document.fullscreenElement || (document as any).webkitFullscreenElement;
       if (!fsElement) {
-        // Enter fullscreen - try container first, then video element
+        // Enter fullscreen - try container first
         const el = container as any;
         if (el.requestFullscreen) {
-          el.requestFullscreen();
+          await el.requestFullscreen();
         } else if (el.webkitRequestFullscreen) {
-          el.webkitRequestFullscreen();
-        } else if (el.webkitEnterFullscreen) {
-          el.webkitEnterFullscreen();
+          await el.webkitRequestFullscreen();
+        } else if (el.mozRequestFullScreen) {
+          await el.mozRequestFullScreen();
+        } else if (el.msRequestFullscreen) {
+          await el.msRequestFullscreen();
         } else if (video && (video as any).webkitEnterFullscreen) {
           // iOS Safari fallback - use video element directly
           (video as any).webkitEnterFullscreen();
+        } else {
+          console.warn('[VideoPlayer] Fullscreen API not supported');
         }
       } else {
         // Exit fullscreen
         const doc = document as any;
         if (doc.exitFullscreen) {
-          doc.exitFullscreen();
+          await doc.exitFullscreen();
         } else if (doc.webkitExitFullscreen) {
-          doc.webkitExitFullscreen();
+          await doc.webkitExitFullscreen();
+        } else if (doc.mozCancelFullScreen) {
+          await doc.mozCancelFullScreen();
+        } else if (doc.msExitFullscreen) {
+          await doc.msExitFullscreen();
         }
       }
     } catch (err) {
       console.error('[VideoPlayer] Fullscreen error:', err);
+      // Fallback: try video element fullscreen
+      if (video && (video as any).webkitEnterFullscreen) {
+        try {
+          (video as any).webkitEnterFullscreen();
+        } catch (e) {
+          console.error('[VideoPlayer] Video fullscreen fallback failed:', e);
+        }
+      }
     }
   };
 

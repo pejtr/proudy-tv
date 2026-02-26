@@ -145,7 +145,7 @@ export default function StreamPage() {
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <Link href="/">
             <div className="flex items-center gap-3 cursor-pointer">
-              <div className="text-2xl rainbow-text font-bold">PROUDY</div>
+              <div className="text-2xl rainbow-text font-bold">PROUDY.TV</div>
             </div>
           </Link>
           

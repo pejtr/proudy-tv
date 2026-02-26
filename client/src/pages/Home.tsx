@@ -16,7 +16,7 @@ export default function Home() {
           <Link href="/">
             <div className="flex items-center gap-3 cursor-pointer group">
               <img src="/proudy-logo.png" alt="PROUDY" className="h-10 w-auto" />
-              <div className="text-2xl gradient-text-animated font-bold">PROUDY</div>
+              <div className="text-2xl gradient-text-animated font-bold">PROUDY.TV</div>
             </div>
           </Link>
           
@@ -63,7 +63,7 @@ export default function Home() {
               {/* Title directly below logo */}
               <div className="space-y-4" style={{ animationDelay: '0.2s' }}>
               <div className="text-7xl md:text-8xl gradient-text-animated font-bold tracking-tight">
-                PROUDY
+                PROUDY.TV
               </div>
               <div className="text-sm text-muted-foreground tracking-[0.3em] uppercase">
                 Česká Streamovací Platforma

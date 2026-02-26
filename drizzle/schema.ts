@@ -733,3 +733,49 @@ export const alertCustomizations = mysqlTable("alert_customizations", {
 
 export type InsertAlertCustomization = typeof alertCustomizations.$inferInsert;
 export type SelectAlertCustomization = typeof alertCustomizations.$inferSelect;
+
+
+/**
+ * Multistream Connections - Platform connections for RTMP restreaming
+ */
+export const multistreamConnections = mysqlTable("multistream_connections", {
+  id: int("id").autoincrement().primaryKey(),
+  streamerId: int("streamer_id").notNull(),
+  platform: mysqlEnum("platform", ["twitch", "kick", "youtube", "facebook"]).notNull(),
+  platformUsername: varchar("platform_username", { length: 255 }),
+  streamKey: text("stream_key"), // Encrypted RTMP stream key
+  ingestUrl: text("ingest_url"), // RTMP ingest URL
+  enabled: boolean("enabled").default(true).notNull(),
+  isTwitchPartner: boolean("is_twitch_partner").default(false).notNull(), // Blocks Twitch restreaming if true
+  lastStreamedAt: timestamp("last_streamed_at"),
+  totalStreamHours: int("total_stream_hours").default(0).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  streamerIdx: index("streamer_idx").on(table.streamerId),
+  platformIdx: index("platform_idx").on(table.platform),
+  uniqueConnection: index("unique_connection").on(table.streamerId, table.platform),
+}));
+
+export type InsertMultistreamConnection = typeof multistreamConnections.$inferInsert;
+export type SelectMultistreamConnection = typeof multistreamConnections.$inferSelect;
+
+/**
+ * Multistream Settings - Streamer preferences for multistreaming mode
+ */
+export const multistreamSettings = mysqlTable("multistream_settings", {
+  id: int("id").autoincrement().primaryKey(),
+  streamerId: int("streamer_id").notNull().unique(),
+  mode: mysqlEnum("mode", ["affiliate", "partner", "exclusive"]).default("affiliate").notNull(),
+  // affiliate: Stream to PROUDY + all connected platforms (default)
+  // partner: Stream to PROUDY + Kick/YouTube only (respects Twitch Partner exclusivity)
+  // exclusive: Stream ONLY to PROUDY (85/15 split, no redistribution)
+  autoEnableNewPlatforms: boolean("auto_enable_new_platforms").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  streamerIdx: index("streamer_idx").on(table.streamerId),
+}));
+
+export type InsertMultistreamSettings = typeof multistreamSettings.$inferInsert;
+export type SelectMultistreamSettings = typeof multistreamSettings.$inferSelect;

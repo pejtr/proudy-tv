@@ -24,8 +24,9 @@ export default function Browse() {
       <header className="border-b border-border sticky top-0 bg-black z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <Link href="/">
-            <div className="flex items-center gap-3 cursor-pointer">
-              <div className="text-2xl rainbow-text font-bold">PROUDY</div>
+            <div className="flex items-center gap-3 cursor-pointer group">
+              <img src="/proudy-logo.png" alt="PROUDY" className="h-10 w-auto" />
+              <div className="text-2xl gradient-text-animated font-bold">PROUDY.TV</div>
             </div>
           </Link>
           

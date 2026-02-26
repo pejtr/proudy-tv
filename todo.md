@@ -1,3 +1,4 @@
+- [x] Fix fullscreen button on VideoPlayer (async API + fallbacks)
 # PROUDY.TV - Project TODO
 
 ## Phase 1: Database Schema & Core API
@@ -596,3 +597,21 @@
 - [ ] Add sound upload for custom alert sounds
 - [ ] Add animation selection for alerts
 - [ ] Add custom text templates for alerts
+- [ ] Convert homepage benefits text to icon grid layout with visual icons
+- [x] Fix demo stream thumbnails (add placeholder images)
+- [x] Add logo to Browse page header (same as homepage)
+- [x] Replace demo streams with Czech streamers/streamerky with realistic names and content
+- [x] Add Other Live Streams carousel on StreamPage (horizontal thumbnails below video)
+- [ ] Add audio preview buttons to carousel thumbnails (multi-audio support)
+
+## Multistreaming System (New Priority Feature)
+- [ ] Create multistream_connections table (platform, streamKey, enabled, twitchPartner flag)
+- [ ] Add tRPC router for multistreaming (connect, disconnect, toggle platforms)
+- [ ] Build Multistreaming Dashboard page (/dashboard/multistreaming)
+- [ ] Add 3 mode selector: Affiliate Mode, Partner Mode, PROUDY Exclusive
+- [ ] Platform connection UI (Twitch, Kick, YouTube with OAuth)
+- [ ] Auto-disable Twitch for Partner Mode
+- [ ] Add warning messages for Twitch Partner compliance
+- [ ] Display unified stats from all platforms
+- [ ] Add revenue split calculator (show earnings comparison)
+- [x] Update branding to PROUDY.TV in all headers and homepage (VITE_APP_TITLE in Settings)

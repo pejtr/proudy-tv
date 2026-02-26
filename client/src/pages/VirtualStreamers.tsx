@@ -223,7 +223,7 @@ export default function VirtualStreamers() {
           <div className="flex items-center gap-4">
             <Link href="/">
               <div className="flex items-center gap-3 cursor-pointer">
-                <div className="text-2xl rainbow-text font-bold">PROUDY</div>
+                <div className="text-2xl rainbow-text font-bold">PROUDY.TV</div>
               </div>
             </Link>
             <span className="text-muted-foreground">/</span>
