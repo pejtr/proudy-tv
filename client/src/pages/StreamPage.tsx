@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import SEO from "@/components/SEO";
 import { VideoStructuredData, BreadcrumbStructuredData } from "@/components/StructuredData";
 import ShareButtons from "@/components/ShareButtons";
+import { ProudyAlerts } from "@/components/ProudyAlerts";
 
 export default function StreamPage() {
   const { id } = useParams();
@@ -22,6 +23,7 @@ export default function StreamPage() {
   const { user, isAuthenticated } = useAuth();
   const [message, setMessage] = useState("");
   const [sessionId] = useState(() => Math.random().toString(36).substring(7));
+  const [alertsEnabled, setAlertsEnabled] = useState(true);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   const { data: stream, isLoading: streamLoading } = trpc.streams.getById.useQuery({ id: streamId });
@@ -133,6 +135,9 @@ export default function StreamPage() {
           { name: stream.title, url: `${siteUrl}${streamUrl}` },
         ]}
       />
+
+      {/* PROUDY Alerts */}
+      <ProudyAlerts enabled={alertsEnabled} testMode={false} />
 
       <div className="min-h-screen bg-black">
         {/* Header */}

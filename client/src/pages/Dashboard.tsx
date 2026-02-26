@@ -16,6 +16,8 @@ import { toast } from "sonner";
 import PartnerProgress from "@/components/PartnerProgress";
 import EmailVerificationBanner from "@/components/EmailVerificationBanner";
 import VerifiedBadge from "@/components/VerifiedBadge";
+import { ChatModerationTools } from "@/components/ChatModerationTools";
+import { StreamAnalytics } from "@/components/StreamAnalytics";
 
 export default function Dashboard() {
   const { user, isAuthenticated } = useAuth();
@@ -116,6 +118,8 @@ export default function Dashboard() {
         <Tabs defaultValue="streams" className="space-y-6">
           <TabsList>
             <TabsTrigger value="streams">My Streams</TabsTrigger>
+            <TabsTrigger value="analytics">Analytics</TabsTrigger>
+            <TabsTrigger value="moderation">Moderation</TabsTrigger>
             <TabsTrigger value="partner">Partner Program</TabsTrigger>
             <TabsTrigger value="settings">Stream Settings</TabsTrigger>
           </TabsList>
@@ -260,6 +264,28 @@ export default function Dashboard() {
                 )}
               </div>
             </div>
+          </TabsContent>
+
+          {/* Analytics Tab */}
+          <TabsContent value="analytics" className="space-y-6">
+            <Card className="p-6">
+              <h2 className="text-2xl font-bold mb-2">Stream Analytics</h2>
+              <p className="text-muted-foreground mb-6">
+                Track your stream performance with real-time viewer and chat metrics.
+              </p>
+            </Card>
+            <StreamAnalytics streamId={myStreams?.[0]?.id || 0} />
+          </TabsContent>
+
+          {/* Moderation Tab */}
+          <TabsContent value="moderation" className="space-y-6">
+            <Card className="p-6">
+              <h2 className="text-2xl font-bold mb-2">Chat Moderation Tools</h2>
+              <p className="text-muted-foreground mb-6">
+                Manage your chat with timeout, ban, and chat mode controls.
+              </p>
+            </Card>
+            <ChatModerationTools streamId={myStreams?.[0]?.id || 0} />
           </TabsContent>
 
           {/* Partner Program Tab */}
