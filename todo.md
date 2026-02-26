@@ -615,3 +615,6 @@
 - [ ] Display unified stats from all platforms
 - [ ] Add revenue split calculator (show earnings comparison)
 - [x] Update branding to PROUDY.TV in all headers and homepage (VITE_APP_TITLE in Settings)
+- [x] Add test HLS URLs to demo streams (Mux test stream)
+- [x] Live video thumbnails with HLS.js support (hover to play)
+- [x] Fallback to thumbnailUrl already implemented

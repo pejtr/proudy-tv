@@ -6,6 +6,7 @@ import { trpc } from "@/lib/trpc";
 import { Link } from "wouter";
 import { Eye, Radio } from "lucide-react";
 import VerifiedBadge from "@/components/VerifiedBadge";
+import LiveThumbnail from "@/components/LiveThumbnail";
 import { useState } from "react";
 
 export default function Browse() {
@@ -125,26 +126,12 @@ export default function Browse() {
               <Link key={stream.id} href={`/stream/${stream.id}`}>
                 <Card className="rainbow-border hover:scale-105 transition-transform cursor-pointer overflow-hidden">
                   <div className="relative aspect-video bg-muted">
-                    {stream.hlsUrl ? (
-                      <video
-                        src={stream.hlsUrl}
-                        className="w-full h-full object-cover"
-                        autoPlay
-                        muted
-                        loop
-                        playsInline
-                      />
-                    ) : stream.thumbnailUrl ? (
-                      <img
-                        src={stream.thumbnailUrl}
-                        alt={stream.title}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <Radio className="h-16 w-16 text-muted-foreground" />
-                      </div>
-                    )}
+                    <LiveThumbnail
+                      hlsUrl={stream.hlsUrl || undefined}
+                      thumbnailUrl={stream.thumbnailUrl || undefined}
+                      alt={stream.title}
+                      className="w-full h-full object-cover"
+                    />
                     
                     {/* Live Badge */}
                     <div className="absolute top-3 left-3 flex flex-col gap-2">

@@ -1,0 +1,9 @@
+{
+  "query": "-- Update demo streams with test HLS URLs (public test streams)\nUPDATE streams SET hls_url = 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8' WHERE stream_key = 'demo-karolina-chat';\nUPDATE streams SET hls_url = 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8' WHERE stream_key = 'demo-tereza-lol';\nUPDATE streams SET hls_url = 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8' WHERE stream_key = 'demo-natalie-asmr';\nUPDATE streams SET hls_url = 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8' WHERE stream_key = 'demo-petra-music';\nUPDATE streams SET hls_url = 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8' WHERE stream_key = 'demo-lucie-minecraft';\nUPDATE streams SET hls_url = 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8' WHERE stream_key = 'demo-jana-chill';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4VFjuiBDjCy66KV.94ca35695ddf --database jcQDGhUwvEDe46K6ArFhgW --execute -- Update demo streams with test HLS URLs (public test streams)\nUPDATE streams SET hls_url = 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8' WHERE stream_key = 'demo-karolina-chat';\nUPDATE streams SET hls_url = 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8' WHERE stream_key = 'demo-tereza-lol';\nUPDATE streams SET hls_url = 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8' WHERE stream_key = 'demo-natalie-asmr';\nUPDATE streams SET hls_url = 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8' WHERE stream_key = 'demo-petra-music';\nUPDATE streams SET hls_url = 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8' WHERE stream_key = 'demo-lucie-minecraft';\nUPDATE streams SET hls_url = 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8' WHERE stream_key = 'demo-jana-chill';",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 102
+}
