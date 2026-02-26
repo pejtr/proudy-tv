@@ -11,6 +11,7 @@ import { setupChatServer } from "../chat";
 import uploadAvatarRouter from "../uploadAvatar";
 import seoRouter from "../seo";
 import ogImageRouter from "../og-image";
+import { startRTMPServer } from "../rtmp";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -76,6 +77,13 @@ async function startServer() {
 
   server.listen(port, () => {
     console.log(`Server running on http://localhost:${port}/`);
+    
+    // Start RTMP server for OBS streaming
+    try {
+      startRTMPServer();
+    } catch (error) {
+      console.error('[Server] Failed to start RTMP server:', error);
+    }
   });
 }
 

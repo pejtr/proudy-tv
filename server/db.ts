@@ -114,6 +114,15 @@ export async function generateStreamKey(): Promise<string> {
   return `sk_${nanoid(32)}`;
 }
 
+export async function regenerateStreamKey(streamId: number): Promise<string> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const newKey = await generateStreamKey();
+  await db.update(streams).set({ streamKey: newKey }).where(eq(streams.id, streamId));
+  return newKey;
+}
+
 export async function createStream(streamerId: number, title: string, description?: string, category?: "Chill & Talk" | "Gaming" | "Music" | "ASMR") {
   const db = await getDb();
   if (!db) throw new Error("Database not available");

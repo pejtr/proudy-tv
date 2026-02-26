@@ -102,6 +102,27 @@ export const appRouter = router({
       return await db.getStreamerStreams(ctx.user.id);
     }),
 
+    // Get streamer's primary stream (for dashboard)
+    getMyStream: protectedProcedure.query(async ({ ctx }) => {
+      const streams = await db.getStreamerStreams(ctx.user.id);
+      if (!streams || streams.length === 0) {
+        return null;
+      }
+      // Return the first stream (or most recent)
+      return streams[0];
+    }),
+
+    // Regenerate stream key
+    regenerateStreamKey: protectedProcedure.mutation(async ({ ctx }) => {
+      const streams = await db.getStreamerStreams(ctx.user.id);
+      if (!streams || streams.length === 0) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'No stream found' });
+      }
+      const streamId = streams[0].id;
+      const newKey = await db.regenerateStreamKey(streamId);
+      return { streamKey: newKey };
+    }),
+
     // Create new stream
     create: streamerProcedure
       .input(z.object({

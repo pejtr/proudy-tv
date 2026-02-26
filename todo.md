@@ -618,3 +618,11 @@
 - [x] Add test HLS URLs to demo streams (Mux test stream)
 - [x] Live video thumbnails with HLS.js support (hover to play)
 - [x] Fallback to thumbnailUrl already implemented
+- [x] Installed node-media-server and configured RTMP ingest
+- [x] Stream key validation in RTMP server
+- [x] FFmpeg HLS transcoding built-in to node-media-server
+- [ ] Set up S3 storage for HLS segments (.m3u8, .ts files)
+- [ ] Add webhook events for stream start/stop
+- [x] Stream Dashboard with OBS setup guide created
+- [ ] Add live stream monitoring UI
+- [ ] Test end-to-end OBS → RTMP → HLS → Player flow
