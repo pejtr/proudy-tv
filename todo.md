@@ -581,3 +581,4 @@
 - [ ] Add "Mirror from Kick" badge to Browse page stream cards
 - [ ] Test video playback with Kick HLS streams
 - [ ] Update homepage motto to "Tvé proudy. Tvá komunita." 💫
+- [x] Reduce spacing between logo and PROUDY title by 66% on homepage

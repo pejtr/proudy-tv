@@ -58,7 +58,7 @@ export default function Home() {
           <div className="max-w-5xl mx-auto text-center space-y-12">
             {/* Animated Logo and Title */}
             <div className="flex flex-col items-center animate-fade-in-up">
-              <img src="/proudy-logo.png" alt="PROUDY Logo" className="w-64 h-auto mb-2" />
+              <img src="/proudy-logo.png" alt="PROUDY Logo" className="w-64 h-auto mb-1" />
               
               {/* Title directly below logo */}
               <div className="space-y-4" style={{ animationDelay: '0.2s' }}>
