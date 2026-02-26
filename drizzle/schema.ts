@@ -635,3 +635,101 @@ export const goalMilestones = mysqlTable("goal_milestones", {
 
 export type InsertGoalMilestone = typeof goalMilestones.$inferInsert;
 export type SelectGoalMilestone = typeof goalMilestones.$inferSelect;
+
+
+/**
+ * Clips - User-created 5-60s clips from live streams
+ */
+export const clips = mysqlTable("clips", {
+  id: int("id").autoincrement().primaryKey(),
+  streamId: int("stream_id").notNull(),
+  creatorId: int("creator_id").notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
+  startTime: int("start_time").notNull(), // seconds from stream start
+  endTime: int("end_time").notNull(), // seconds from stream start
+  duration: int("duration").notNull(), // seconds (5-60)
+  videoUrl: text("video_url").notNull(), // S3 URL for clip video
+  thumbnailUrl: text("thumbnail_url"),
+  viewCount: int("view_count").default(0).notNull(),
+  likeCount: int("like_count").default(0).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  streamIdx: index("stream_idx").on(table.streamId),
+  creatorIdx: index("creator_idx").on(table.creatorId),
+  createdAtIdx: index("created_at_idx").on(table.createdAt),
+}));
+
+export type InsertClip = typeof clips.$inferInsert;
+export type SelectClip = typeof clips.$inferSelect;
+
+/**
+ * Clip views - tracks who viewed which clips
+ */
+export const clipViews = mysqlTable("clip_views", {
+  id: int("id").autoincrement().primaryKey(),
+  clipId: int("clip_id").notNull(),
+  userId: int("user_id"),
+  viewedAt: timestamp("viewed_at").defaultNow().notNull(),
+}, (table) => ({
+  clipIdx: index("clip_idx").on(table.clipId),
+  userIdx: index("user_idx").on(table.userId),
+}));
+
+export type InsertClipView = typeof clipViews.$inferInsert;
+
+/**
+ * Clip likes - tracks who liked which clips
+ */
+export const clipLikes = mysqlTable("clip_likes", {
+  id: int("id").autoincrement().primaryKey(),
+  clipId: int("clip_id").notNull(),
+  userId: int("user_id").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  clipIdx: index("clip_idx").on(table.clipId),
+  userIdx: index("user_idx").on(table.userId),
+  uniqueLike: index("unique_like").on(table.clipId, table.userId),
+}));
+
+export type InsertClipLike = typeof clipLikes.$inferInsert;
+
+
+/**
+ * Alert Customizations - Streamer preferences for follow/sub/donation alerts
+ */
+export const alertCustomizations = mysqlTable("alert_customizations", {
+  id: int("id").autoincrement().primaryKey(),
+  streamerId: int("streamer_id").notNull().unique(),
+  // Follow alert settings
+  followEnabled: boolean("follow_enabled").default(true).notNull(),
+  followSoundUrl: text("follow_sound_url"),
+  followAnimation: mysqlEnum("follow_animation", ["bounce", "slide", "fade", "confetti", "fireworks"]).default("bounce"),
+  followTextTemplate: text("follow_text_template"),
+  followDuration: int("follow_duration").default(5).notNull(), // seconds
+  // Subscription alert settings
+  subEnabled: boolean("sub_enabled").default(true).notNull(),
+  subSoundUrl: text("sub_sound_url"),
+  subAnimation: mysqlEnum("sub_animation", ["bounce", "slide", "fade", "confetti", "fireworks"]).default("confetti"),
+  subTextTemplate: text("sub_text_template"),
+  subDuration: int("sub_duration").default(7).notNull(), // seconds
+  // Donation alert settings
+  donationEnabled: boolean("donation_enabled").default(true).notNull(),
+  donationSoundUrl: text("donation_sound_url"),
+  donationAnimation: mysqlEnum("donation_animation", ["bounce", "slide", "fade", "confetti", "fireworks"]).default("fireworks"),
+  donationTextTemplate: text("donation_text_template"),
+  donationDuration: int("donation_duration").default(10).notNull(), // seconds
+  // Raid alert settings
+  raidEnabled: boolean("raid_enabled").default(true).notNull(),
+  raidSoundUrl: text("raid_sound_url"),
+  raidAnimation: mysqlEnum("raid_animation", ["bounce", "slide", "fade", "confetti", "fireworks"]).default("slide"),
+  raidTextTemplate: text("raid_text_template"),
+  raidDuration: int("raid_duration").default(10).notNull(), // seconds
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  streamerIdx: index("streamer_idx").on(table.streamerId),
+}));
+
+export type InsertAlertCustomization = typeof alertCustomizations.$inferInsert;
+export type SelectAlertCustomization = typeof alertCustomizations.$inferSelect;

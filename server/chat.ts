@@ -128,6 +128,188 @@ export function setupChatServer(httpServer: HTTPServer) {
       }
     });
 
+    // ProudyAlerts - Follow event
+    socket.on('alert_follow', async (data: {
+      streamId: number;
+      followerName: string;
+      followerAvatar?: string;
+    }) => {
+      io.to(`stream_${data.streamId}`).emit('proudy_alert', {
+        type: 'follow',
+        username: data.followerName,
+        avatar: data.followerAvatar,
+        timestamp: new Date()
+      });
+      console.log(`[ProudyAlerts] Follow alert in stream ${data.streamId}: ${data.followerName}`);
+    });
+
+    // ProudyAlerts - Subscription event
+    socket.on('alert_subscription', async (data: {
+      streamId: number;
+      subscriberName: string;
+      tier: number;
+      months: number;
+      message?: string;
+    }) => {
+      io.to(`stream_${data.streamId}`).emit('proudy_alert', {
+        type: 'subscription',
+        username: data.subscriberName,
+        tier: data.tier,
+        months: data.months,
+        message: data.message,
+        timestamp: new Date()
+      });
+      console.log(`[ProudyAlerts] Sub alert in stream ${data.streamId}: ${data.subscriberName} (Tier ${data.tier})`);
+    });
+
+    // ProudyAlerts - Donation event
+    socket.on('alert_donation', async (data: {
+      streamId: number;
+      donorName: string;
+      amount: number;
+      message?: string;
+      tierLevel?: number;
+    }) => {
+      io.to(`stream_${data.streamId}`).emit('proudy_alert', {
+        type: 'donation',
+        username: data.donorName,
+        amount: data.amount,
+        message: data.message,
+        tierLevel: data.tierLevel,
+        timestamp: new Date()
+      });
+      console.log(`[ProudyAlerts] Donation alert in stream ${data.streamId}: ${data.donorName} - ${data.amount} coins`);
+    });
+
+    // ProudyAlerts - Raid event
+    socket.on('alert_raid', async (data: {
+      streamId: number;
+      raiderName: string;
+      viewerCount: number;
+    }) => {
+      io.to(`stream_${data.streamId}`).emit('proudy_alert', {
+        type: 'raid',
+        username: data.raiderName,
+        viewerCount: data.viewerCount,
+        timestamp: new Date()
+      });
+      console.log(`[ProudyAlerts] Raid alert in stream ${data.streamId}: ${data.raiderName} with ${data.viewerCount} viewers`);
+    });
+
+    // Chat Moderation - Timeout user
+    socket.on('moderate_timeout', async (data: {
+      streamId: number;
+      userId: number;
+      username: string;
+      duration: number; // seconds
+      moderatorName: string;
+    }) => {
+      io.to(`stream_${data.streamId}`).emit('user_timeout', {
+        userId: data.userId,
+        username: data.username,
+        duration: data.duration,
+        moderatorName: data.moderatorName,
+        timestamp: new Date()
+      });
+      console.log(`[Moderation] User ${data.username} timed out for ${data.duration}s in stream ${data.streamId}`);
+    });
+
+    // Chat Moderation - Ban user
+    socket.on('moderate_ban', async (data: {
+      streamId: number;
+      userId: number;
+      username: string;
+      moderatorName: string;
+      reason?: string;
+    }) => {
+      io.to(`stream_${data.streamId}`).emit('user_banned', {
+        userId: data.userId,
+        username: data.username,
+        moderatorName: data.moderatorName,
+        reason: data.reason,
+        timestamp: new Date()
+      });
+      console.log(`[Moderation] User ${data.username} banned in stream ${data.streamId}`);
+    });
+
+    // Chat Moderation - Slow mode
+    socket.on('moderate_slow_mode', async (data: {
+      streamId: number;
+      enabled: boolean;
+      duration: number; // seconds between messages
+      moderatorName: string;
+    }) => {
+      io.to(`stream_${data.streamId}`).emit('slow_mode_update', {
+        enabled: data.enabled,
+        duration: data.duration,
+        moderatorName: data.moderatorName,
+        timestamp: new Date()
+      });
+      console.log(`[Moderation] Slow mode ${data.enabled ? 'enabled' : 'disabled'} in stream ${data.streamId}`);
+    });
+
+    // Chat Moderation - Subscriber-only mode
+    socket.on('moderate_sub_only', async (data: {
+      streamId: number;
+      enabled: boolean;
+      moderatorName: string;
+    }) => {
+      io.to(`stream_${data.streamId}`).emit('sub_only_update', {
+        enabled: data.enabled,
+        moderatorName: data.moderatorName,
+        timestamp: new Date()
+      });
+      console.log(`[Moderation] Sub-only mode ${data.enabled ? 'enabled' : 'disabled'} in stream ${data.streamId}`);
+    });
+
+    // Polls - Create poll
+    socket.on('poll_create', async (data: {
+      streamId: number;
+      pollId: number;
+      question: string;
+      options: string[];
+      duration: number;
+    }) => {
+      io.to(`stream_${data.streamId}`).emit('poll_created', {
+        pollId: data.pollId,
+        question: data.question,
+        options: data.options,
+        duration: data.duration,
+        timestamp: new Date()
+      });
+      console.log(`[Polls] Poll created in stream ${data.streamId}: ${data.question}`);
+    });
+
+    // Polls - Vote
+    socket.on('poll_vote', async (data: {
+      streamId: number;
+      pollId: number;
+      optionIndex: number;
+      userId: number;
+    }) => {
+      // Broadcast vote update to all viewers
+      io.to(`stream_${data.streamId}`).emit('poll_vote_update', {
+        pollId: data.pollId,
+        optionIndex: data.optionIndex,
+        timestamp: new Date()
+      });
+      console.log(`[Polls] Vote cast in stream ${data.streamId}, poll ${data.pollId}, option ${data.optionIndex}`);
+    });
+
+    // Polls - End poll
+    socket.on('poll_end', async (data: {
+      streamId: number;
+      pollId: number;
+      results: { option: string; votes: number }[];
+    }) => {
+      io.to(`stream_${data.streamId}`).emit('poll_ended', {
+        pollId: data.pollId,
+        results: data.results,
+        timestamp: new Date()
+      });
+      console.log(`[Polls] Poll ${data.pollId} ended in stream ${data.streamId}`);
+    });
+
     // Handle disconnect
     socket.on('disconnect', () => {
       console.log(`[Chat] User disconnected: ${socket.id}`);

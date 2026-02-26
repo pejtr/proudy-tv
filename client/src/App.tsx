@@ -20,6 +20,7 @@ import EmoteManagement from "./pages/EmoteManagement";
 import VerifyEmail from "./pages/VerifyEmail";
 import TopStreamers from "./pages/TopStreamers";
 import CategoryPage from "./pages/CategoryPage";
+import { AlertCustomization } from "./pages/AlertCustomization";
 
 function Router() {
   const [location] = useLocation();
@@ -47,6 +48,7 @@ function Router() {
       <Route path={"/coins"} component={CoinsPage} />
       <Route path={"/admin/virtual-streamers"} component={VirtualStreamers} />
       <Route path={"/dashboard/emotes"} component={EmoteManagement} />
+      <Route path={"/dashboard/alerts"} component={AlertCustomization} />
       <Route path={"/verify-email"} component={VerifyEmail} />
       <Route path={"/top-streamers"} component={TopStreamers} />
       <Route path={"/category/:category"} component={CategoryPage} />

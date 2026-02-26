@@ -8,7 +8,8 @@ import {
   viewerSessions, InsertViewerSession,
   notifications, InsertNotification,
   messages, follows, stories, storyViews, feedItems, feedInteractions,
-  communityPosts, communityComments, communityGroups, groupMembers, postLikes
+  communityPosts, communityComments, communityGroups, groupMembers, postLikes,
+  clips, clipLikes, clipViews, alertCustomizations
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 import { nanoid } from 'nanoid';
@@ -1468,4 +1469,222 @@ export async function getUserByEmail(email: string) {
     .limit(1);
   
   return user || null;
+}
+
+
+/**
+ * Clip Functions
+ */
+export async function createClip(data: {
+  streamId: number;
+  creatorId: number;
+  title: string;
+  description?: string;
+  startTime: number;
+  endTime: number;
+  duration: number;
+  videoUrl: string;
+  thumbnailUrl?: string;
+}): Promise<number> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const [result] = await db.insert(clips).values(data);
+  return result.insertId;
+}
+
+export async function getClipsByStream(streamId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return await db
+    .select({
+      id: clips.id,
+      streamId: clips.streamId,
+      creatorId: clips.creatorId,
+      creatorName: users.name,
+      title: clips.title,
+      description: clips.description,
+      startTime: clips.startTime,
+      endTime: clips.endTime,
+      duration: clips.duration,
+      videoUrl: clips.videoUrl,
+      thumbnailUrl: clips.thumbnailUrl,
+      viewCount: clips.viewCount,
+      likeCount: clips.likeCount,
+      createdAt: clips.createdAt,
+    })
+    .from(clips)
+    .leftJoin(users, eq(clips.creatorId, users.id))
+    .where(eq(clips.streamId, streamId))
+    .orderBy(desc(clips.createdAt));
+}
+
+export async function getClipById(clipId: number) {
+  const db = await getDb();
+  if (!db) return null;
+  
+  const [clip] = await db
+    .select({
+      id: clips.id,
+      streamId: clips.streamId,
+      creatorId: clips.creatorId,
+      creatorName: users.name,
+      title: clips.title,
+      description: clips.description,
+      startTime: clips.startTime,
+      endTime: clips.endTime,
+      duration: clips.duration,
+      videoUrl: clips.videoUrl,
+      thumbnailUrl: clips.thumbnailUrl,
+      viewCount: clips.viewCount,
+      likeCount: clips.likeCount,
+      createdAt: clips.createdAt,
+    })
+    .from(clips)
+    .leftJoin(users, eq(clips.creatorId, users.id))
+    .where(eq(clips.id, clipId))
+    .limit(1);
+  
+  return clip || null;
+}
+
+export async function likeClip(clipId: number, userId: number) {
+  const db = await getDb();
+  if (!db) return;
+  
+  // Check if already liked
+  const [existing] = await db
+    .select()
+    .from(clipLikes)
+    .where(and(eq(clipLikes.clipId, clipId), eq(clipLikes.userId, userId)))
+    .limit(1);
+  
+  if (existing) return; // Already liked
+  
+  // Add like
+  await db.insert(clipLikes).values({ clipId, userId });
+  
+  // Increment like count
+  await db
+    .update(clips)
+    .set({ likeCount: sql`${clips.likeCount} + 1` })
+    .where(eq(clips.id, clipId));
+}
+
+export async function unlikeClip(clipId: number, userId: number) {
+  const db = await getDb();
+  if (!db) return;
+  
+  // Remove like
+  await db
+    .delete(clipLikes)
+    .where(and(eq(clipLikes.clipId, clipId), eq(clipLikes.userId, userId)));
+  
+  // Decrement like count
+  await db
+    .update(clips)
+    .set({ likeCount: sql`${clips.likeCount} - 1` })
+    .where(eq(clips.id, clipId));
+}
+
+export async function trackClipView(clipId: number, userId?: number) {
+  const db = await getDb();
+  if (!db) return;
+  
+  // Record view
+  await db.insert(clipViews).values({ clipId, userId });
+  
+  // Increment view count
+  await db
+    .update(clips)
+    .set({ viewCount: sql`${clips.viewCount} + 1` })
+    .where(eq(clips.id, clipId));
+}
+
+
+/**
+ * Alert Customization Functions
+ */
+export async function getAlertSettings(streamerId: number) {
+  const db = await getDb();
+  if (!db) return null;
+  
+  const [settings] = await db
+    .select()
+    .from(alertCustomizations)
+    .where(eq(alertCustomizations.streamerId, streamerId))
+    .limit(1);
+  
+  // Return default settings if none exist
+  if (!settings) {
+    return {
+      streamerId,
+      followEnabled: true,
+      followAnimation: 'bounce' as const,
+      followTextTemplate: '{username} právě začal sledovat!',
+      followDuration: 5,
+      subEnabled: true,
+      subAnimation: 'confetti' as const,
+      subTextTemplate: '{username} se právě přihlásil k odběru! (Tier {tier})',
+      subDuration: 7,
+      donationEnabled: true,
+      donationAnimation: 'fireworks' as const,
+      donationTextTemplate: '{username} daroval {amount} coinů!',
+      donationDuration: 10,
+      raidEnabled: true,
+      raidAnimation: 'slide' as const,
+      raidTextTemplate: '{username} právě raiduje s {viewerCount} diváky!',
+      raidDuration: 10,
+    };
+  }
+  
+  return settings;
+}
+
+export async function updateAlertSettings(streamerId: number, data: Partial<{
+  followEnabled: boolean;
+  followSoundUrl: string;
+  followAnimation: 'bounce' | 'slide' | 'fade' | 'confetti' | 'fireworks';
+  followTextTemplate: string;
+  followDuration: number;
+  subEnabled: boolean;
+  subSoundUrl: string;
+  subAnimation: 'bounce' | 'slide' | 'fade' | 'confetti' | 'fireworks';
+  subTextTemplate: string;
+  subDuration: number;
+  donationEnabled: boolean;
+  donationSoundUrl: string;
+  donationAnimation: 'bounce' | 'slide' | 'fade' | 'confetti' | 'fireworks';
+  donationTextTemplate: string;
+  donationDuration: number;
+  raidEnabled: boolean;
+  raidSoundUrl: string;
+  raidAnimation: 'bounce' | 'slide' | 'fade' | 'confetti' | 'fireworks';
+  raidTextTemplate: string;
+  raidDuration: number;
+}>) {
+  const db = await getDb();
+  if (!db) return;
+  
+  // Check if settings exist
+  const [existing] = await db
+    .select()
+    .from(alertCustomizations)
+    .where(eq(alertCustomizations.streamerId, streamerId))
+    .limit(1);
+  
+  if (existing) {
+    // Update existing
+    await db
+      .update(alertCustomizations)
+      .set(data)
+      .where(eq(alertCustomizations.streamerId, streamerId));
+  } else {
+    // Create new
+    await db.insert(alertCustomizations).values({
+      streamerId,
+      ...data,
+    });
+  }
 }

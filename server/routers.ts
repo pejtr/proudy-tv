@@ -868,6 +868,129 @@ export const appRouter = router({
     }),
   }),
 
+  // Clips - User-created stream highlights
+  clips: router({
+    // Create clip from live stream
+    create: protectedProcedure
+      .input(z.object({
+        streamId: z.number(),
+        title: z.string().min(1).max(255),
+        description: z.string().optional(),
+        startTime: z.number().min(0),
+        endTime: z.number().min(0),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const duration = input.endTime - input.startTime;
+        
+        // Validate clip duration (5-60 seconds)
+        if (duration < 5 || duration > 60) {
+          throw new TRPCError({ 
+            code: 'BAD_REQUEST', 
+            message: 'Clip duration must be between 5 and 60 seconds' 
+          });
+        }
+
+        // Verify stream exists
+        const stream = await db.getStreamById(input.streamId);
+        if (!stream) {
+          throw new TRPCError({ code: 'NOT_FOUND', message: 'Stream not found' });
+        }
+
+        // For now, use placeholder video URL (in production, this would trigger video processing)
+        const videoUrl = `https://clips.proudy.tv/${input.streamId}/${Date.now()}.mp4`;
+        const thumbnailUrl = stream.thumbnailUrl || undefined;
+
+        const clipId = await db.createClip({
+          streamId: input.streamId,
+          creatorId: ctx.user.id,
+          title: input.title,
+          description: input.description,
+          startTime: input.startTime,
+          endTime: input.endTime,
+          duration,
+          videoUrl,
+          thumbnailUrl,
+        });
+
+        return { clipId, success: true };
+      }),
+
+    // Get clips for a stream
+    getByStream: publicProcedure
+      .input(z.object({ streamId: z.number() }))
+      .query(async ({ input }) => {
+        return await db.getClipsByStream(input.streamId);
+      }),
+
+    // Get clip by ID
+    getById: publicProcedure
+      .input(z.object({ clipId: z.number() }))
+      .query(async ({ input }) => {
+        return await db.getClipById(input.clipId);
+      }),
+
+    // Like clip
+    like: protectedProcedure
+      .input(z.object({ clipId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        await db.likeClip(input.clipId, ctx.user.id);
+        return { success: true };
+      }),
+
+    // Unlike clip
+    unlike: protectedProcedure
+      .input(z.object({ clipId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        await db.unlikeClip(input.clipId, ctx.user.id);
+        return { success: true };
+      }),
+
+    // Track clip view
+    trackView: publicProcedure
+      .input(z.object({ clipId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        await db.trackClipView(input.clipId, ctx.user?.id);
+        return { success: true };
+      }),
+  }),
+
+  // Alert Customizations - Streamer alert preferences
+  alerts: router({
+    // Get my alert settings
+    getMySettings: streamerProcedure.query(async ({ ctx }) => {
+      return await db.getAlertSettings(ctx.user.id);
+    }),
+
+    // Update alert settings
+    updateSettings: streamerProcedure
+      .input(z.object({
+        followEnabled: z.boolean().optional(),
+        followSoundUrl: z.string().optional(),
+        followAnimation: z.enum(['bounce', 'slide', 'fade', 'confetti', 'fireworks']).optional(),
+        followTextTemplate: z.string().optional(),
+        followDuration: z.number().min(1).max(30).optional(),
+        subEnabled: z.boolean().optional(),
+        subSoundUrl: z.string().optional(),
+        subAnimation: z.enum(['bounce', 'slide', 'fade', 'confetti', 'fireworks']).optional(),
+        subTextTemplate: z.string().optional(),
+        subDuration: z.number().min(1).max(30).optional(),
+        donationEnabled: z.boolean().optional(),
+        donationSoundUrl: z.string().optional(),
+        donationAnimation: z.enum(['bounce', 'slide', 'fade', 'confetti', 'fireworks']).optional(),
+        donationTextTemplate: z.string().optional(),
+        donationDuration: z.number().min(1).max(30).optional(),
+        raidEnabled: z.boolean().optional(),
+        raidSoundUrl: z.string().optional(),
+        raidAnimation: z.enum(['bounce', 'slide', 'fade', 'confetti', 'fireworks']).optional(),
+        raidTextTemplate: z.string().optional(),
+        raidDuration: z.number().min(1).max(30).optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        await db.updateAlertSettings(ctx.user.id, input);
+        return { success: true };
+      }),
+  }),
+
   // Payment & Monetization
   payment: router({
     // Create Stripe Checkout session for coin purchase

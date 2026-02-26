@@ -582,3 +582,17 @@
 - [ ] Test video playback with Kick HLS streams
 - [ ] Update homepage motto to "Tvé proudy. Tvá komunita." 💫
 - [x] Reduce spacing between logo and PROUDY title by 66% on homepage
+- [x] Crop logo image to remove white space margins
+- [x] Install and configure Socket.io for real-time communication
+- [x] Implement Socket.io server events for ProudyAlerts (follow, sub, donation, raid)
+- [x] Connect chat moderation tools to Socket.io (timeout, ban, slow mode)
+- [x] Integrate chat polls with Socket.io for real-time voting
+- [x] Create clips table in database (streamId, creatorId, title, startTime, endTime, videoUrl)
+- [x] Build Clip Creation UI with time selector (5-60s range)
+- [ ] Implement video trimming/extraction for clips
+- [ ] Create clip player page with share functionality
+- [x] Add alert_customizations table for streamer preferences
+- [ ] Build Alert Customization Dashboard UI
+- [ ] Add sound upload for custom alert sounds
+- [ ] Add animation selection for alerts
+- [ ] Add custom text templates for alerts
