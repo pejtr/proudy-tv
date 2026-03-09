@@ -779,3 +779,25 @@ export const multistreamSettings = mysqlTable("multistream_settings", {
 
 export type InsertMultistreamSettings = typeof multistreamSettings.$inferInsert;
 export type SelectMultistreamSettings = typeof multistreamSettings.$inferSelect;
+
+/**
+ * Stream Analytics Snapshots - Periodic viewer/chat data for charting
+ */
+export const streamAnalytics = mysqlTable("stream_analytics", {
+  id: int("id").autoincrement().primaryKey(),
+  streamId: int("stream_id").notNull(),
+  streamerId: int("streamer_id").notNull(),
+  viewerCount: int("viewer_count").default(0).notNull(),
+  chatMessagesPerMin: int("chat_messages_per_min").default(0).notNull(),
+  newFollowers: int("new_followers").default(0).notNull(),
+  newSubscribers: int("new_subscribers").default(0).notNull(),
+  donationAmount: int("donation_amount").default(0).notNull(), // in CZK cents
+  snapshotAt: timestamp("snapshot_at").defaultNow().notNull(),
+}, (table) => ({
+  streamIdx: index("stream_idx").on(table.streamId),
+  streamerIdx: index("streamer_idx").on(table.streamerId),
+  snapshotAtIdx: index("snapshot_at_idx").on(table.snapshotAt),
+}));
+
+export type InsertStreamAnalytics = typeof streamAnalytics.$inferInsert;
+export type SelectStreamAnalytics = typeof streamAnalytics.$inferSelect;

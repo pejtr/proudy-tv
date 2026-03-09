@@ -88,10 +88,22 @@ export default function Home() {
               <span className="gradient-text-animated">Tvé proudy. Tvá komunita.</span> 💫
             </div>
 
-            <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
-              Streamuj s AR filtry, voice changerem a 3D avatary. 
-              Multistreaming support. Až 80/20 revenue split. Žádné limity.
-            </p>
+            {/* Benefits Icon Grid */}
+            <div className="flex flex-wrap justify-center gap-4 max-w-3xl mx-auto animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
+              {[
+                { icon: '🎭', label: 'AR Filtry & 3D Avatary' },
+                { icon: '🎙️', label: 'Voice Changer' },
+                { icon: '📡', label: 'Multistreaming' },
+                { icon: '💰', label: 'Až 85/15 Split' },
+                { icon: '⚡', label: '0ms Latence' },
+                { icon: '🚀', label: 'Žádné Limity' },
+              ].map((b) => (
+                <div key={b.label} className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-2 text-sm text-foreground hover:bg-white/10 transition-colors">
+                  <span className="text-lg">{b.icon}</span>
+                  <span className="font-medium">{b.label}</span>
+                </div>
+              ))}
+            </div>
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center pt-8 animate-fade-in-up" style={{ animationDelay: '0.8s' }}>

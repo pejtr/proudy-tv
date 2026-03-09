@@ -23,6 +23,8 @@ import CategoryPage from "./pages/CategoryPage";
 import { AlertCustomization } from "./pages/AlertCustomization";
 import StreamDashboard from "./pages/StreamDashboard";
 import MultistreamingDashboard from "./pages/MultistreamingDashboard";
+import StreamAnalytics from "./pages/StreamAnalytics";
+import ClipGallery from "./pages/ClipGallery";
 
 function Router() {
   const [location] = useLocation();
@@ -56,6 +58,8 @@ function Router() {
       <Route path={"/verify-email"} component={VerifyEmail} />
       <Route path={"/top-streamers"} component={TopStreamers} />
       <Route path={"/category/:category"} component={CategoryPage} />
+      <Route path={"/dashboard/analytics"} component={StreamAnalytics} />
+      <Route path={"/clips"} component={ClipGallery} />
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
     </Switch>

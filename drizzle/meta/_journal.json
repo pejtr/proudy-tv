@@ -15,6 +15,13 @@
       "when": 1772131672626,
       "tag": "0001_short_natasha_romanoff",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1773064845299,
+      "tag": "0002_living_multiple_man",
+      "breakpoints": true
     }
   ]
 }

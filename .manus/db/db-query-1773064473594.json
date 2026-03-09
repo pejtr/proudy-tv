@@ -1,0 +1,9 @@
+{
+  "query": "\nCREATE TABLE IF NOT EXISTS `stream_analytics` (\n  `id` int NOT NULL AUTO_INCREMENT,\n  `stream_id` int NOT NULL,\n  `streamer_id` int NOT NULL,\n  `viewer_count` int NOT NULL DEFAULT 0,\n  `chat_messages_per_min` int NOT NULL DEFAULT 0,\n  `new_followers` int NOT NULL DEFAULT 0,\n  `new_subscribers` int NOT NULL DEFAULT 0,\n  `donation_amount` int NOT NULL DEFAULT 0,\n  `snapshot_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  PRIMARY KEY (`id`),\n  KEY `stream_idx` (`stream_id`),\n  KEY `streamer_idx` (`streamer_id`),\n  KEY `snapshot_at_idx` (`snapshot_at`)\n);\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4VFjuiBDjCy66KV.94ca35695ddf --database jcQDGhUwvEDe46K6ArFhgW --execute \nCREATE TABLE IF NOT EXISTS `stream_analytics` (\n  `id` int NOT NULL AUTO_INCREMENT,\n  `stream_id` int NOT NULL,\n  `streamer_id` int NOT NULL,\n  `viewer_count` int NOT NULL DEFAULT 0,\n  `chat_messages_per_min` int NOT NULL DEFAULT 0,\n  `new_followers` int NOT NULL DEFAULT 0,\n  `new_subscribers` int NOT NULL DEFAULT 0,\n  `donation_amount` int NOT NULL DEFAULT 0,\n  `snapshot_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  PRIMARY KEY (`id`),\n  KEY `stream_idx` (`stream_id`),\n  KEY `streamer_idx` (`streamer_id`),\n  KEY `snapshot_at_idx` (`snapshot_at`)\n);\n",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 121
+}

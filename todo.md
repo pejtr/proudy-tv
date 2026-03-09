@@ -597,7 +597,7 @@
 - [ ] Add sound upload for custom alert sounds
 - [ ] Add animation selection for alerts
 - [ ] Add custom text templates for alerts
-- [ ] Convert homepage benefits text to icon grid layout with visual icons
+- [x] Convert homepage benefits text to icon grid layout with visual icons
 - [x] Fix demo stream thumbnails (add placeholder images)
 - [x] Add logo to Browse page header (same as homepage)
 - [x] Replace demo streams with Czech streamers/streamerky with realistic names and content
@@ -634,3 +634,8 @@
 - [x] Platform connection UI with forms (Twitch, Kick, YouTube)
 - [ ] Implement revenue calculator with comparison table
 - [ ] Test multistreaming mode selection
+- [ ] Integrate RTMP server with multistream connections (auto-redistribution)
+- [ ] Build Stream Analytics dashboard with real-time charts
+- [ ] Create Clip Gallery page with filtering and sharing
+- [ ] Add Other Live Streams carousel with audio preview on StreamPage
+- [x] Convert homepage benefits text to icon grid layout

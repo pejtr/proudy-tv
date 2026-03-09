@@ -234,7 +234,88 @@ export default function StreamPage() {
           <Chat streamId={streamId} className="h-[calc(100vh-200px)] rainbow-border" />
         </div>
       </div>
+
+      {/* Other Live Streams Carousel */}
+      <OtherLiveStreams currentStreamId={streamId} />
     </div>
     </>
+  );
+}
+
+// ─── Other Live Streams Carousel ─────────────────────────────────────────────
+function OtherLiveStreams({ currentStreamId }: { currentStreamId: number }) {
+  const { data: liveStreams } = trpc.streams.getLive.useQuery();
+  const [audioEnabled, setAudioEnabled] = useState<Record<number, boolean>>({});
+
+  const others = liveStreams?.filter(s => s.id !== currentStreamId) ?? [];
+  if (!others.length) return null;
+
+  function toggleAudio(id: number) {
+    setAudioEnabled(prev => ({ ...prev, [id]: !prev[id] }));
+  }
+
+  return (
+    <div className="border-t border-zinc-800 bg-zinc-950 px-6 py-6">
+      <h2 className="text-white font-bold text-lg mb-4 flex items-center gap-2">
+        <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse inline-block"></span>
+        Další živé streamy
+      </h2>
+      <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-zinc-700">
+        {others.map(s => (
+          <div key={s.id} className="flex-shrink-0 w-56 group">
+            <div className="relative rounded-xl overflow-hidden bg-zinc-800 aspect-video mb-2">
+              {s.hlsUrl ? (
+                <video
+                  src={s.hlsUrl}
+                  autoPlay
+                  muted={!audioEnabled[s.id]}
+                  loop
+                  playsInline
+                  className="w-full h-full object-cover"
+                />
+              ) : s.thumbnailUrl ? (
+                <img src={s.thumbnailUrl} alt={s.title} className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-zinc-800">
+                  <span className="text-zinc-500 text-xs">No preview</span>
+                </div>
+              )}
+              {/* Overlay controls */}
+              <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-between p-2">
+                <button
+                  onClick={() => toggleAudio(s.id)}
+                  className={`text-xs px-2 py-1 rounded-full font-medium transition-colors ${
+                    audioEnabled[s.id]
+                      ? 'bg-purple-600 text-white'
+                      : 'bg-black/60 text-zinc-300 hover:bg-purple-600 hover:text-white'
+                  }`}
+                >
+                  {audioEnabled[s.id] ? '🔊 Zvuk' : '🔇 Zvuk'}
+                </button>
+                <Link href={`/stream/${s.id}`}>
+                  <button className="text-xs px-2 py-1 rounded-full bg-white/20 text-white hover:bg-white/40 transition-colors">
+                    Přejít →
+                  </button>
+                </Link>
+              </div>
+              {/* LIVE badge */}
+              <div className="absolute top-2 left-2">
+                <span className="bg-red-600 text-white text-xs px-2 py-0.5 rounded font-bold">● LIVE</span>
+              </div>
+              {/* Viewer count */}
+              <div className="absolute top-2 right-2">
+                <span className="bg-black/60 text-white text-xs px-2 py-0.5 rounded">
+                  👁 {(s.viewerCount || 0).toLocaleString()}
+                </span>
+              </div>
+            </div>
+            <Link href={`/stream/${s.id}`}>
+              <p className="text-white text-sm font-medium line-clamp-1 hover:text-purple-300 transition-colors">{s.title}</p>
+            </Link>
+            <p className="text-zinc-400 text-xs">{s.streamerName || 'Streamer'}</p>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
