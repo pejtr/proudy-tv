@@ -626,3 +626,11 @@
 - [x] Stream Dashboard with OBS setup guide created
 - [ ] Add live stream monitoring UI
 - [ ] Test end-to-end OBS → RTMP → HLS → Player flow
+
+## Multistreaming Dashboard
+- [x] Database schema already exists (mode, connected platforms)
+- [x] tRPC procedures for multistreaming created
+- [x] Multistreaming Dashboard UI created
+- [x] Platform connection UI with forms (Twitch, Kick, YouTube)
+- [ ] Implement revenue calculator with comparison table
+- [ ] Test multistreaming mode selection

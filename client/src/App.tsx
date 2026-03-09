@@ -22,6 +22,7 @@ import TopStreamers from "./pages/TopStreamers";
 import CategoryPage from "./pages/CategoryPage";
 import { AlertCustomization } from "./pages/AlertCustomization";
 import StreamDashboard from "./pages/StreamDashboard";
+import MultistreamingDashboard from "./pages/MultistreamingDashboard";
 
 function Router() {
   const [location] = useLocation();
@@ -43,6 +44,7 @@ function Router() {
       <Route path={"/stream/:id"} component={StreamPage} />
       <Route path={"/dashboard"} component={Dashboard} />
       <Route path={"/dashboard/stream"} component={StreamDashboard} />
+      <Route path={"/dashboard/multistreaming"} component={MultistreamingDashboard} />
       <Route path={"/profile/:id"} component={Profile} />
       <Route path={"/messages"} component={Messages} />
       <Route path={"/feed"} component={ForYouFeed} />

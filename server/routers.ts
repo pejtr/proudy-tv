@@ -1012,6 +1012,82 @@ export const appRouter = router({
       }),
   }),
 
+  // Multistreaming Management
+  multistreaming: router({
+    // Get multistream settings
+    getSettings: protectedProcedure.query(async ({ ctx }) => {
+      return await db.getMultistreamSettings(ctx.user.id);
+    }),
+
+    // Update multistream mode
+    updateMode: protectedProcedure
+      .input(z.object({
+        mode: z.enum(["affiliate", "partner", "exclusive"]),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        await db.upsertMultistreamSettings({
+          streamerId: ctx.user.id,
+          mode: input.mode,
+        });
+        return { success: true, mode: input.mode };
+      }),
+
+    // Get connected platforms
+    getConnections: protectedProcedure.query(async ({ ctx }) => {
+      return await db.getMultistreamConnections(ctx.user.id);
+    }),
+
+    // Add platform connection
+    addConnection: protectedProcedure
+      .input(z.object({
+        platform: z.enum(["twitch", "kick", "youtube", "facebook"]),
+        platformUsername: z.string().optional(),
+        streamKey: z.string(),
+        ingestUrl: z.string(),
+        isTwitchPartner: z.boolean().default(false),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        await db.addMultistreamConnection({
+          streamerId: ctx.user.id,
+          ...input,
+        });
+        return { success: true };
+      }),
+
+    // Update platform connection
+    updateConnection: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+        streamKey: z.string().optional(),
+        ingestUrl: z.string().optional(),
+        enabled: z.boolean().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const { id, ...updates } = input;
+        await db.updateMultistreamConnection(id, updates);
+        return { success: true };
+      }),
+
+    // Toggle platform connection
+    toggleConnection: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+        enabled: z.boolean(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        await db.toggleMultistreamConnection(input.id, input.enabled);
+        return { success: true };
+      }),
+
+    // Delete platform connection
+    deleteConnection: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        await db.deleteMultistreamConnection(input.id);
+        return { success: true };
+      }),
+  }),
+
   // Payment & Monetization
   payment: router({
     // Create Stripe Checkout session for coin purchase

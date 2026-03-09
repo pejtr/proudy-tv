@@ -9,7 +9,9 @@ import {
   notifications, InsertNotification,
   messages, follows, stories, storyViews, feedItems, feedInteractions,
   communityPosts, communityComments, communityGroups, groupMembers, postLikes,
-  clips, clipLikes, clipViews, alertCustomizations
+  clips, clipLikes, clipViews, alertCustomizations,
+  multistreamConnections, InsertMultistreamConnection,
+  multistreamSettings, InsertMultistreamSettings
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 import { nanoid } from 'nanoid';
@@ -1696,4 +1698,84 @@ export async function updateAlertSettings(streamerId: number, data: Partial<{
       ...data,
     });
   }
+}
+
+// ============= MULTISTREAMING OPERATIONS =============
+
+export async function getMultistreamSettings(streamerId: number) {
+  const db = await getDb();
+  if (!db) return null;
+
+  const result = await db
+    .select()
+    .from(multistreamSettings)
+    .where(eq(multistreamSettings.streamerId, streamerId))
+    .limit(1);
+
+  return result[0] || null;
+}
+
+export async function upsertMultistreamSettings(settings: InsertMultistreamSettings) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db
+    .insert(multistreamSettings)
+    .values(settings)
+    .onDuplicateKeyUpdate({
+      set: {
+        mode: settings.mode,
+        autoEnableNewPlatforms: settings.autoEnableNewPlatforms,
+        updatedAt: new Date(),
+      },
+    });
+}
+
+export async function getMultistreamConnections(streamerId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db
+    .select()
+    .from(multistreamConnections)
+    .where(eq(multistreamConnections.streamerId, streamerId));
+}
+
+export async function addMultistreamConnection(connection: InsertMultistreamConnection) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.insert(multistreamConnections).values(connection);
+}
+
+export async function updateMultistreamConnection(
+  id: number,
+  updates: Partial<InsertMultistreamConnection>
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db
+    .update(multistreamConnections)
+    .set({ ...updates, updatedAt: new Date() })
+    .where(eq(multistreamConnections.id, id));
+}
+
+export async function deleteMultistreamConnection(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db
+    .delete(multistreamConnections)
+    .where(eq(multistreamConnections.id, id));
+}
+
+export async function toggleMultistreamConnection(id: number, enabled: boolean) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db
+    .update(multistreamConnections)
+    .set({ enabled, updatedAt: new Date() })
+    .where(eq(multistreamConnections.id, id));
 }

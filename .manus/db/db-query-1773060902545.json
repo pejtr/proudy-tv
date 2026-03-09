@@ -1,0 +1,9 @@
+{
+  "query": "\nALTER TABLE `multistream_connections` \nADD COLUMN IF NOT EXISTS `last_streamed_at` timestamp NULL,\nADD COLUMN IF NOT EXISTS `total_stream_hours` decimal(10,2) NOT NULL DEFAULT 0;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4VFjuiBDjCy66KV.94ca35695ddf --database jcQDGhUwvEDe46K6ArFhgW --execute \nALTER TABLE `multistream_connections` \nADD COLUMN IF NOT EXISTS `last_streamed_at` timestamp NULL,\nADD COLUMN IF NOT EXISTS `total_stream_hours` decimal(10,2) NOT NULL DEFAULT 0;\n",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 478
+}
