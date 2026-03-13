@@ -801,3 +801,87 @@ export const streamAnalytics = mysqlTable("stream_analytics", {
 
 export type InsertStreamAnalytics = typeof streamAnalytics.$inferInsert;
 export type SelectStreamAnalytics = typeof streamAnalytics.$inferSelect;
+
+/**
+ * Split Chat Messages - External platform chat messages aggregated into unified view
+ * Used for Split Chat feature: Twitch/YouTube/Kick chats merged with PROUDY chat
+ */
+export const splitChatMessages = mysqlTable("split_chat_messages", {
+  id: bigint("id", { mode: "number" }).autoincrement().primaryKey(),
+  streamId: int("stream_id").notNull(),
+  platform: mysqlEnum("platform", ["proudy", "twitch", "youtube", "kick", "facebook"]).default("proudy").notNull(),
+  externalUserId: varchar("external_user_id", { length: 255 }), // Platform-specific user ID
+  username: varchar("username", { length: 255 }).notNull(),
+  displayName: varchar("display_name", { length: 255 }),
+  message: text("message").notNull(),
+  userColor: varchar("user_color", { length: 7 }), // Hex color for username
+  badges: text("badges"), // JSON array of badge names
+  isSubscriber: boolean("is_subscriber").default(false).notNull(),
+  isModerator: boolean("is_moderator").default(false).notNull(),
+  isVip: boolean("is_vip").default(false).notNull(),
+  isDeleted: boolean("is_deleted").default(false).notNull(), // For moderation
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  streamIdx: index("stream_idx").on(table.streamId),
+  platformIdx: index("platform_idx").on(table.platform),
+  createdAtIdx: index("created_at_idx").on(table.createdAt),
+}));
+
+export type InsertSplitChatMessage = typeof splitChatMessages.$inferInsert;
+export type SelectSplitChatMessage = typeof splitChatMessages.$inferSelect;
+
+/**
+ * Push Subscriptions - Web Push API subscriptions for live notifications
+ */
+export const pushSubscriptions = mysqlTable("push_subscriptions", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("user_id").notNull(),
+  endpoint: text("endpoint").notNull(),
+  p256dh: text("p256dh").notNull(), // Public key
+  auth: text("auth").notNull(), // Auth secret
+  streamerId: int("streamer_id"), // If subscribed to specific streamer
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  userIdx: index("user_idx").on(table.userId),
+  streamerIdx: index("streamer_idx").on(table.streamerId),
+}));
+
+export type InsertPushSubscription = typeof pushSubscriptions.$inferInsert;
+export type SelectPushSubscription = typeof pushSubscriptions.$inferSelect;
+
+/**
+ * Emote Store Listings - Emotes available for purchase with Proudy Coins
+ */
+export const emoteStoreListing = mysqlTable("emote_store_listings", {
+  id: int("id").autoincrement().primaryKey(),
+  emoteId: int("emote_id").notNull(), // References customEmotes
+  streamerId: int("streamer_id").notNull(),
+  priceCoins: int("price_coins").default(50).notNull(), // Price in Proudy Coins
+  isPublic: boolean("is_public").default(true).notNull(),
+  totalSold: int("total_sold").default(0).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  emoteIdx: index("emote_idx").on(table.emoteId),
+  streamerIdx: index("streamer_idx").on(table.streamerId),
+}));
+
+export type InsertEmoteStoreListing = typeof emoteStoreListing.$inferInsert;
+export type SelectEmoteStoreListing = typeof emoteStoreListing.$inferSelect;
+
+/**
+ * Emote Purchases - Track which users bought which emotes
+ */
+export const emotePurchases = mysqlTable("emote_purchases", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("user_id").notNull(),
+  emoteId: int("emote_id").notNull(),
+  listingId: int("listing_id").notNull(),
+  pricePaid: int("price_paid").notNull(),
+  purchasedAt: timestamp("purchased_at").defaultNow().notNull(),
+}, (table) => ({
+  userIdx: index("user_idx").on(table.userId),
+  emoteIdx: index("emote_idx").on(table.emoteId),
+}));
+
+export type InsertEmotePurchase = typeof emotePurchases.$inferInsert;
+export type SelectEmotePurchase = typeof emotePurchases.$inferSelect;

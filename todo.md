@@ -642,3 +642,31 @@
 - [x] Streamer Onboarding Wizard (OBS setup, first stream guide)
 - [x] Subscription Tier System (Tier 1/2/3 with Stripe)
 - [x] PWA support (manifest.json + service worker)
+
+## New Features (Push Notifications, Streamer Profiles, Emote Store)
+- [ ] Add push_subscriptions table to schema (userId, endpoint, p256dh, auth, createdAt)
+- [ ] Install web-push npm package for VAPID push notifications
+- [ ] Create push notification tRPC procedures (subscribe, unsubscribe, notifyFollowers)
+- [ ] Add PushNotificationButton component for subscribing
+- [ ] Trigger push notifications when a streamer goes live (stream start event)
+- [ ] Create public Streamer Profile page at /streamer/:username with bio, social links, stream overview
+- [ ] Add recent streams/clips section to Streamer Profile
+- [ ] Add Subscribe button on Streamer Profile page
+- [ ] Add Follow button with push notification opt-in on Streamer Profile
+- [ ] Create Emote Store page at /emote-store with browseable emotes from all streamers
+- [ ] Add Proudy Coins purchase flow for emotes (buy individual emotes)
+- [ ] Add emote_store_listings table (emoteId, price in coins, isPublic)
+- [ ] Show emote store on Browse page and streamer profiles
+- [ ] Write vitest tests for push notifications and emote store
+
+## Multistreaming Ecosystem (Stream from PROUDY)
+- [x] SplitChat component — unified chat from Twitch, YouTube, Kick, PROUDY with platform badges
+- [x] Split Chat toggle button in StreamPage (switch between native and split chat)
+- [x] MultiStreamControlCenter page — unified viewer counts, platform status, RTMP setup
+- [x] StreamerProfile public page — bio, social links, live status, follow, push notifications
+- [x] EmoteStore page — Proudy Coins, categories, cart, purchase flow
+- [x] PushNotificationButton component — browser Notification API with permission handling
+- [x] Dashboard tabs for Multistream and Emotes
+- [x] Routes: /streamer/:username, /dashboard/multistream-center, /emote-store
+- [x] Vitest tests for multistream logic, split chat, emote store, push notifications (32 tests)
+- [x] All 168 tests passing

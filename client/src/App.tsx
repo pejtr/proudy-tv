@@ -27,6 +27,9 @@ import StreamAnalytics from "./pages/StreamAnalytics";
 import ClipGallery from "./pages/ClipGallery";
 import OnboardingWizard from "./pages/OnboardingWizard";
 import SubscriptionTiers from "./pages/SubscriptionTiers";
+import StreamerProfile from "./pages/StreamerProfile";
+import MultiStreamControlCenter from "./pages/MultiStreamControlCenter";
+import EmoteStore from "./pages/EmoteStore";
 
 function Router() {
   const [location] = useLocation();
@@ -64,6 +67,9 @@ function Router() {
       <Route path={"/clips"} component={ClipGallery} />
       <Route path={"/onboarding"} component={OnboardingWizard} />
       <Route path={"/subscriptions"} component={() => <SubscriptionTiers />} />
+      <Route path={"/streamer/:username"} component={StreamerProfile} />
+      <Route path={"/dashboard/multistream-center"} component={MultiStreamControlCenter} />
+      <Route path={"/emote-store"} component={EmoteStore} />
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
     </Switch>

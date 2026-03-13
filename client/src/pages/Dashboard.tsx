@@ -124,6 +124,8 @@ export default function Dashboard() {
             <TabsTrigger value="settings">Stream Settings</TabsTrigger>
             <TabsTrigger value="onboarding">Pruvodce</TabsTrigger>
             <TabsTrigger value="subscriptions">Subscriptions</TabsTrigger>
+            <TabsTrigger value="multistream">Multistream</TabsTrigger>
+            <TabsTrigger value="emotes">Emotes</TabsTrigger>
           </TabsList>
 
           {/* Streams Tab */}
@@ -518,6 +520,65 @@ export default function Dashboard() {
               >
                 Spravovat Subscriptions
               </Button>
+            </Card>
+          </TabsContent>
+
+          {/* Multistream Tab */}
+          <TabsContent value="multistream" className="space-y-6">
+            <Card className="p-6">
+              <h2 className="text-xl font-bold mb-2 flex items-center gap-2">
+                <Radio className="h-5 w-5 text-purple-400" />
+                Multistream Control Center
+              </h2>
+              <p className="text-muted-foreground mb-4">
+                Streamuj primárně na PROUDY.TV a automaticky redistribuuj na Twitch, YouTube, Kick a Facebook.
+                Split Chat zobrazuje zprávy ze všech platforem v jednom okně.
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <div className="p-4 rounded-lg bg-purple-500/10 border border-purple-500/20">
+                  <div className="text-2xl font-bold text-purple-300">4</div>
+                  <div className="text-sm text-muted-foreground">Podporované platformy</div>
+                </div>
+                <div className="p-4 rounded-lg bg-blue-500/10 border border-blue-500/20">
+                  <div className="text-2xl font-bold text-blue-300">Split Chat</div>
+                  <div className="text-sm text-muted-foreground">Unified chat ze všech platforem</div>
+                </div>
+                <div className="p-4 rounded-lg bg-green-500/10 border border-green-500/20">
+                  <div className="text-2xl font-bold text-green-300">85/15</div>
+                  <div className="text-sm text-muted-foreground">Revenue split (Exclusive)</div>
+                </div>
+              </div>
+              <Button
+                className="rainbow-gradient text-black font-bold gap-2"
+                onClick={() => navigate('/dashboard/multistream-center')}
+              >
+                <Radio className="h-4 w-4" />
+                Otevřít Multistream Center
+              </Button>
+            </Card>
+          </TabsContent>
+
+          {/* Emotes Tab */}
+          <TabsContent value="emotes" className="space-y-6">
+            <Card className="p-6">
+              <h2 className="text-xl font-bold mb-2">Emote Store & Proudy Coins</h2>
+              <p className="text-muted-foreground mb-4">
+                Přidej vlastní emotes do obchodu a nech fanoušky je kupovat za Proudy Coins.
+              </p>
+              <div className="flex gap-3">
+                <Button
+                  className="rainbow-gradient text-black font-bold gap-2"
+                  onClick={() => navigate('/dashboard/emotes')}
+                >
+                  Spravovat Emotes
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => navigate('/emote-store')}
+                >
+                  Zobrazit Emote Store
+                </Button>
+              </div>
             </Card>
           </TabsContent>
         </Tabs>

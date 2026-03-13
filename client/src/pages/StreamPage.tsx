@@ -8,8 +8,9 @@ import { trpc } from "@/lib/trpc";
 import { Link, useParams } from "wouter";
 import VideoPlayer from '@/components/VideoPlayer';
 import Chat from '@/components/Chat';
+import SplitChat from '@/components/SplitChat';
 import GoalWidget from '@/components/GoalWidget';
-import { Eye, Send, AlertCircle } from "lucide-react";
+import { Eye, Send, AlertCircle, Split } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import SEO from "@/components/SEO";
@@ -24,6 +25,7 @@ export default function StreamPage() {
   const [message, setMessage] = useState("");
   const [sessionId] = useState(() => Math.random().toString(36).substring(7));
   const [alertsEnabled, setAlertsEnabled] = useState(true);
+  const [splitChatEnabled, setSplitChatEnabled] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   const { data: stream, isLoading: streamLoading } = trpc.streams.getById.useQuery({ id: streamId });
@@ -230,8 +232,25 @@ export default function StreamPage() {
             </div>
           </div>
 
-          {/* Chat */}
-          <Chat streamId={streamId} className="h-[calc(100vh-200px)] rainbow-border" />
+          {/* Chat - Toggle between native and Split Chat */}
+          <div className="flex flex-col h-[calc(100vh-200px)]">
+            <div className="flex items-center justify-end px-2 py-1 border-b border-border/50">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setSplitChatEnabled(!splitChatEnabled)}
+                className={`text-xs gap-1 h-7 ${splitChatEnabled ? 'text-purple-400 bg-purple-500/10' : 'text-muted-foreground'}`}
+              >
+                <Split className="h-3.5 w-3.5" />
+                {splitChatEnabled ? 'Split Chat ON' : 'Split Chat'}
+              </Button>
+            </div>
+            {splitChatEnabled ? (
+              <SplitChat streamId={streamId} className="flex-1 min-h-0 border-0 rounded-none" />
+            ) : (
+              <Chat streamId={streamId} className="flex-1 min-h-0 rainbow-border border-t-0" />
+            )}
+          </div>
         </div>
       </div>
 
