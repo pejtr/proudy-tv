@@ -639,3 +639,6 @@
 - [ ] Create Clip Gallery page with filtering and sharing
 - [ ] Add Other Live Streams carousel with audio preview on StreamPage
 - [x] Convert homepage benefits text to icon grid layout
+- [x] Streamer Onboarding Wizard (OBS setup, first stream guide)
+- [x] Subscription Tier System (Tier 1/2/3 with Stripe)
+- [x] PWA support (manifest.json + service worker)

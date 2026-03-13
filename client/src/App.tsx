@@ -25,6 +25,8 @@ import StreamDashboard from "./pages/StreamDashboard";
 import MultistreamingDashboard from "./pages/MultistreamingDashboard";
 import StreamAnalytics from "./pages/StreamAnalytics";
 import ClipGallery from "./pages/ClipGallery";
+import OnboardingWizard from "./pages/OnboardingWizard";
+import SubscriptionTiers from "./pages/SubscriptionTiers";
 
 function Router() {
   const [location] = useLocation();
@@ -60,6 +62,8 @@ function Router() {
       <Route path={"/category/:category"} component={CategoryPage} />
       <Route path={"/dashboard/analytics"} component={StreamAnalytics} />
       <Route path={"/clips"} component={ClipGallery} />
+      <Route path={"/onboarding"} component={OnboardingWizard} />
+      <Route path={"/subscriptions"} component={() => <SubscriptionTiers />} />
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
     </Switch>

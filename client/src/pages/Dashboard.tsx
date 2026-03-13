@@ -122,6 +122,8 @@ export default function Dashboard() {
             <TabsTrigger value="moderation">Moderation</TabsTrigger>
             <TabsTrigger value="partner">Partner Program</TabsTrigger>
             <TabsTrigger value="settings">Stream Settings</TabsTrigger>
+            <TabsTrigger value="onboarding">Pruvodce</TabsTrigger>
+            <TabsTrigger value="subscriptions">Subscriptions</TabsTrigger>
           </TabsList>
 
           {/* Streams Tab */}
@@ -484,6 +486,38 @@ export default function Dashboard() {
                   </div>
                 </div>
               </div>
+            </Card>
+          </TabsContent>
+
+          {/* Onboarding Tab */}
+          <TabsContent value="onboarding" className="space-y-6">
+            <Card className="p-6">
+              <h2 className="text-xl font-bold mb-2">Pruvodce pro nove streamery</h2>
+              <p className="text-muted-foreground mb-4">
+                Projdete si nas interaktivni pruvodce nastavenim OBS a prvnim streamem.
+              </p>
+              <Button
+                className="rainbow-gradient text-black font-bold gap-2"
+                onClick={() => navigate('/onboarding')}
+              >
+                Spustit Pruvodce
+              </Button>
+            </Card>
+          </TabsContent>
+
+          {/* Subscriptions Tab */}
+          <TabsContent value="subscriptions" className="space-y-6">
+            <Card className="p-6">
+              <h2 className="text-xl font-bold mb-2">Subscription Tiers</h2>
+              <p className="text-muted-foreground mb-4">
+                Nastavte Tier 1/2/3 odbery pro vase fanousky. Dostanete 85 % z kazdeho odberu.
+              </p>
+              <Button
+                className="rainbow-gradient text-black font-bold gap-2"
+                onClick={() => navigate('/subscriptions')}
+              >
+                Spravovat Subscriptions
+              </Button>
             </Card>
           </TabsContent>
         </Tabs>
