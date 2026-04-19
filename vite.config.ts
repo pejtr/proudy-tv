@@ -179,6 +179,10 @@ export default defineConfig({
       "localhost",
       "127.0.0.1",
     ],
+    // HMR is disabled in server/_core/vite.ts because Socket.IO occupies
+    // the shared WS upgrade handler and the proxy instance-ID is not
+    // available as an env var.  This keeps the browser console clean.
+    hmr: false,
     fs: {
       strict: true,
       deny: ["**/.*"],

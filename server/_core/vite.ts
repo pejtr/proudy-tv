@@ -7,9 +7,52 @@ import { createServer as createViteServer } from "vite";
 import viteConfig from "../../vite.config";
 
 export async function setupVite(app: Express, server: Server) {
+  // HMR WebSocket setup for the Manus sandbox proxy environment.
+  //
+  // Problem: Vite resolves the hmr.host to an IP and tries to bind the
+  // HMR WebSocket server on that IP.  In the Manus sandbox the public IP
+  // is not bindable, so we must bind on 0.0.0.0 while still telling the
+  // browser to connect through the correct proxy hostname.
+  //
+  // Solution: Use a custom Vite plugin that patches the @vite/client script
+  // at serve time to replace the socketHost with the correct proxy URL.
+  const instanceId = process.env.MANUS_INSTANCE_ID;
+  const codeServerDomain = process.env.CODE_SERVER_DOMAIN || "us2.manus.computer";
+  const hmrProxyHost = instanceId
+    ? `24678-${instanceId}.${codeServerDomain}`
+    : null;
+
+  // Plugin: rewrite @vite/client to use the correct proxy WebSocket URL.
+  const hmrClientPatchPlugin = hmrProxyHost
+    ? {
+        name: "manus-hmr-client-patch",
+        transform(code: string, id: string) {
+          if (!id.includes("@vite/client")) return;
+          // Replace the socketHost template literal so the browser connects
+          // to wss://24678-xxx.manus.computer:443/ instead of 0.0.0.0:443.
+          return code
+            .replace(
+              /const socketHost = `\$\{[^}]+\}:\$\{[^}]+\}\$\{[^}]+\}`;/,
+              `const socketHost = \`${hmrProxyHost}/\`;`
+            )
+            .replace(
+              /const directSocketHost = [^;]+;/,
+              `const directSocketHost = \"${hmrProxyHost}/\";`
+            );
+        },
+      }
+    : null;
+
   const serverOptions = {
     middlewareMode: true,
-    hmr: { server },
+    hmr: {
+      // Bind on all interfaces — never on a specific IP.
+      host: "0.0.0.0",
+      port: 24678,
+      // clientPort tells the browser to use port 443 (HTTPS proxy).
+      clientPort: 443,
+      protocol: "wss" as const,
+    },
     allowedHosts: true as const,
   };
 
@@ -18,7 +61,49 @@ export async function setupVite(app: Express, server: Server) {
     configFile: false,
     server: serverOptions,
     appType: "custom",
+    plugins: [
+      ...((viteConfig as any).plugins ?? []),
+      ...(hmrClientPatchPlugin ? [hmrClientPatchPlugin] : []),
+    ],
   });
+
+  // Intercept @vite/client to patch the HMR socketHost with the correct
+  // Manus proxy hostname.  Vite uses res.end() (not res.send()) to serve
+  // this script, so we override res.end on the response object.
+  if (hmrProxyHost) {
+    app.use("/@vite/client", (req, res, next) => {
+      const originalEnd = res.end.bind(res);
+      (res as any).end = function (chunk: any, ...args: any[]) {
+        if (typeof chunk === "string" && chunk.includes("socketHost")) {
+          chunk = chunk
+            .replace(
+              /const socketHost = `[^`]+`;/,
+              `const socketHost = \`${hmrProxyHost}/\`;`
+            )
+            .replace(
+              /const directSocketHost = "[^"]+";/,
+              `const directSocketHost = "${hmrProxyHost}/";`
+            );
+        } else if (Buffer.isBuffer(chunk)) {
+          let str = chunk.toString("utf8");
+          if (str.includes("socketHost")) {
+            str = str
+              .replace(
+                /const socketHost = `[^`]+`;/,
+                `const socketHost = \`${hmrProxyHost}/\`;`
+              )
+              .replace(
+                /const directSocketHost = "[^"]+";/,
+                `const directSocketHost = "${hmrProxyHost}/";`
+              );
+            chunk = Buffer.from(str, "utf8");
+          }
+        }
+        return originalEnd(chunk, ...args);
+      };
+      next();
+    });
+  }
 
   app.use(vite.middlewares);
   app.use("*", async (req, res, next) => {

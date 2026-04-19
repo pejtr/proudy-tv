@@ -670,3 +670,32 @@
 - [x] Routes: /streamer/:username, /dashboard/multistream-center, /emote-store
 - [x] Vitest tests for multistream logic, split chat, emote store, push notifications (32 tests)
 - [x] All 168 tests passing
+
+## Real-Time Viewer Count Sync (Twitch + YouTube API)
+- [ ] Research Twitch Helix API and YouTube Data API v3 endpoints for live stream viewer counts
+- [ ] Add TWITCH_CLIENT_ID, TWITCH_CLIENT_SECRET, YOUTUBE_API_KEY secrets
+- [ ] Create server/platformApi.ts with Twitch and YouTube API helpers
+- [ ] Implement Twitch App Access Token (client_credentials) flow
+- [ ] Implement YouTube live broadcast viewer count fetching
+- [ ] Add platform_viewer_counts table to DB for caching counts
+- [ ] Create tRPC procedure: multistreaming.getPlatformViewerCounts
+- [ ] Create tRPC procedure: multistreaming.syncViewerCounts (server-side polling)
+- [ ] Update MultiStreamControlCenter UI with live viewer counts per platform
+- [ ] Add auto-refresh every 30 seconds in UI
+- [ ] Add status indicators (live/offline) per platform
+- [ ] Write vitest tests for API helpers and viewer count logic
+
+
+## Repositioning: Platforma pro Umělce a Edukátory
+- [ ] Redesign homepage hero — zaměření na umělce, vzdělávání, kreativitu
+- [ ] Přidat kategorie: Malířství, Hudba, Tanec, Divadlo, Fotografie, Design, Jazyky, Matematika, Věda, Programování, Filozofie
+- [ ] Artist Portfolio stránka — galerie děl, bio, upcoming workshops
+- [ ] Workshop/Course stream typ — strukturovaný obsah s kapitolami
+- [ ] Educator Dashboard — správa kurzů, sledování pokroku studentů
+- [ ] Q&A Session modul — moderovaný live Q&A s hlasováním otázek
+- [ ] Certifikáty za absolvování kurzů (PDF generování)
+- [ ] Study Groups — skupiny pro studenty stejného kurzu
+- [ ] Aktualizovat onboarding flow — výběr role: Umělec / Vzdělávatel / Divák
+- [ ] Aktualizovat branding copy (tagline, popis, CTA) pro umělce a vzdělávání
+- [ ] Přidat "Doporučené kurzy" a "Živé workshopy" sekce na homepage
+- [ ] Rozšířit stream kategorie v DB o umělecké a vzdělávací kategorie
