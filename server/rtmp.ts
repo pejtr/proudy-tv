@@ -188,15 +188,16 @@ function stopRestreaming(streamKey: string) {
 /**
  * Handle stream publish (OBS starts streaming)
  */
-nms.on('prePublish', async (id: string, StreamPath: string, args: any) => {
-  console.log('[RTMP] Publish attempt:', { id, StreamPath, args });
+nms.on('prePublish', async (session: any) => {
+  const streamPath = session.streamPath;
+  const streamApp = session.streamApp;
+  console.log('[RTMP] Publish attempt:', { streamPath, streamApp });
 
   // Extract stream key from path: /live/STREAM_KEY
-  const streamKey = StreamPath.split('/').pop();
+  const streamKey = streamPath?.split('/').pop();
   if (!streamKey) {
     console.error('[RTMP] No stream key in path');
-    const session = nms.getSession(id);
-    session?.reject();
+    session.reject();
     return;
   }
 
@@ -204,8 +205,7 @@ nms.on('prePublish', async (id: string, StreamPath: string, args: any) => {
   const isValid = await validateStreamKey(streamKey);
   if (!isValid) {
     console.error('[RTMP] Invalid stream key:', streamKey);
-    const session = nms.getSession(id);
-    session?.reject();
+    session.reject();
     return;
   }
 
@@ -249,10 +249,11 @@ nms.on('prePublish', async (id: string, StreamPath: string, args: any) => {
 /**
  * Handle stream stop (OBS stops streaming)
  */
-nms.on('donePublish', async (id: string, StreamPath: string, args: any) => {
-  console.log('[RTMP] Stream ended:', { id, StreamPath });
+nms.on('donePublish', async (session: any) => {
+  const streamPath = session.streamPath;
+  console.log('[RTMP] Stream ended:', { streamPath });
 
-  const streamKey = StreamPath.split('/').pop();
+  const streamKey = streamPath?.split('/').pop();
   if (!streamKey) return;
 
   try {
